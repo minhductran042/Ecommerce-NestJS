@@ -1,8 +1,8 @@
 import { create } from "domain";
-import envConfig from "shared/config";
-import { RoleName } from "shared/constants/role.constant";
-import { HashingService } from "shared/services/hashing.service";
-import { PrismaService } from "shared/services/prisma.service";
+import envConfig from "src/shared/config";
+import { RoleName } from "src/shared/constants/role.constant";
+import { HashingService } from "src/shared/services/hashing.service";
+import { PrismaService } from "src/shared/services/prisma.service";
 
 const prisma = new PrismaService();
 const hashingService = new HashingService();
@@ -19,8 +19,8 @@ const main = async () => {
                 description: 'Admin Role'
             }, 
             {
-                name: RoleName.USER,
-                description: 'User Role'
+                name: RoleName.CLIENT,
+                description: 'Client Role'
             },
             {
                 name: RoleName.SELLER,
