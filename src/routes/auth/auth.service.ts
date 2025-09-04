@@ -26,6 +26,9 @@ export class AuthService {
                     name: body.name,
                     phoneNumber: body.phoneNumber,
                     roleId: clientRoleId
+                },
+                omit: {
+                    totpSecret: true,
                 }
             })
             return user

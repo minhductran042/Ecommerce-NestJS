@@ -16,6 +16,7 @@ datasource db {
 enum UserStatus {
   ACTIVE
   BLOCKED
+  INACTIVE
 }
 
 enum OrderStatus {
