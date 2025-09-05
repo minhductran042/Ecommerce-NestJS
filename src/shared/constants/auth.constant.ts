@@ -6,17 +6,25 @@ export const AuthType = {
     ApiKey: 'ApiKey',
 } as const
 
-export type AuthTypeType = (typeof AuthType)[keyof typeof AuthType]
+export type AuthTypeType = (typeof AuthType)[keyof typeof AuthType] // Lấy tất cả các giá trị của AuthType và tạo thành kiểu dữ liệu
 
 export const ConditionGuard = {
     And: 'and',
     Or: 'or'
 } as const
 
-export type ConditionGuardType = (typeof ConditionGuard)[keyof typeof ConditionGuard]
+export type ConditionGuardType = (typeof ConditionGuard)[keyof typeof ConditionGuard] // Lấy tất cả các giá trị của ConditionGuard và tạo thành kiểu dữ liệu
 
 export const UserStatus = {
     ACTIVE: 'ACTIVE',
     INACTIVE: 'INACTIVE',
     BLOCKED: 'BLOCKED'
 } as const
+
+
+export const TypeOfVerificationCode = {
+    REGISTER: 'REGISTER',
+    FORGOT_PASSWORD: 'FORGOT_PASSWORD',
+} as const
+
+export type TypeOfVerificationCodeType = (typeof TypeOfVerificationCode)[keyof typeof TypeOfVerificationCode] // Lấy tất cả các giá trị của TypeOfVerificationCode và tạo thành kiểu dữ liệu

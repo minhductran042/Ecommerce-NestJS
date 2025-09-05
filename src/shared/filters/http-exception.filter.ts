@@ -4,7 +4,7 @@ import { ZodSerializationException } from 'nestjs-zod';
 import { ZodError } from 'zod';
 
 @Catch(HttpException)
-export class HttpExceptionFilter extends BaseExceptionFilter {
+export class HttpExceptionFilter extends BaseExceptionFilter { // dung de log loi tu ZodSerializationException
     private readonly logger = new Logger(HttpExceptionFilter.name);
 
     catch(exception: HttpException, host: ArgumentsHost) {

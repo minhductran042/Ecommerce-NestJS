@@ -1,10 +1,15 @@
-import { ConflictException, Injectable} from '@nestjs/common';
+import { ConflictException, Injectable, UnprocessableEntityException} from '@nestjs/common';
 import { HashingService } from '../../shared/services/hashing.service';
 import { TokenService } from 'src/shared/services/token.service';
-import { isUniqueConstraintPrismaError } from 'src/shared/helper';
+import { generateOTP, isUniqueConstraintPrismaError } from 'src/shared/helper';
 import { RoleService } from './role.service';
-import { RegisterBodyType } from './auth.model';
+import { RegisterBodyType, SendOTPBodyType } from './auth.model';
 import { AuthRepository } from './auth.repo';
+import { ShareUserRepository } from 'src/shared/repository/share-user.repo';
+import envConfig from 'src/shared/config';
+import { addMilliseconds } from 'date-fns';
+import ms from 'ms';
+import path from 'path';
 
 @Injectable()
 export class AuthService {
@@ -12,27 +17,75 @@ export class AuthService {
         private readonly hashingService: HashingService,
         private readonly tokenService: TokenService,
         private readonly roleService: RoleService,
-        private readonly authRepository: AuthRepository
+        private readonly authRepository: AuthRepository,
+        private readonly shareRepository: ShareUserRepository
     ) {}
 
     async register(body: RegisterBodyType) {
         try {
+            const verificationCode = await this.authRepository.findUniqueVerificationCode({
+                email: body.email,
+                code: body.code,
+                type: 'REGISTER'
+            })
             const clientRoleId = await this.roleService.getClientRoleId();
             const hashedPassword = await this.hashingService.hash(body.password);
             
+            if(!verificationCode) {
+                throw new UnprocessableEntityException({
+                    message: 'Mã OTP không hợp lệ',
+                    path: 'code',
+                });
+            }
+
+            if(verificationCode.expiresAt < new Date()) {
+                throw new UnprocessableEntityException({
+                    message: 'Mã OTP đã hết hạn',
+                    path: 'code',
+                });
+            }
+
+
             return await this.authRepository.createUser({
                 email: body.email,
                 name: body.name,
                 phoneNumber: body.phoneNumber,
                 password: hashedPassword,
-                roleId: clientRoleId
+                roleId: clientRoleId,
             })
         } catch (error) {
            if(isUniqueConstraintPrismaError(error)) {
-                throw new ConflictException('Email already exists');
+                throw new UnprocessableEntityException({
+                    message: 'Email đã tồn tại',
+                    path: 'email',
+                });
             }
             throw error
         }
+    }
+
+    async sendOTP(body: SendOTPBodyType) {
+        //1. Kiểm tra email đã tồn tại trong hệ thống chưa
+        const user = await this.shareRepository.findUniqueObject({ email: body.email });
+        if(user) {
+            throw new UnprocessableEntityException({
+                    message: 'Email đã tồn tại',
+                    path: 'email',
+            });
+        }
+
+        //2. Tạo mã OTP và lưu vào cơ sở dữ liệu
+        const code = generateOTP();
+        const verificationCode = await this.authRepository.createVerificationCode({
+            email: body.email,
+            code: code,
+            type: body.type,
+            expiresAt: addMilliseconds(new Date(), ms(envConfig.OTP_EXPIRES_IN)) // Thời gian hiện tại + thời gian hết hạn
+        });
+
+        //3. Gửi mã OTP đến email người dùng
+
+        return verificationCode;
     }
 
     // async login(body: any) {
