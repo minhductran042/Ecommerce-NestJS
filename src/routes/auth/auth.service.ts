@@ -10,6 +10,7 @@ import envConfig from 'src/shared/config';
 import { addMilliseconds } from 'date-fns';
 import ms from 'ms';
 import path from 'path';
+import { EmailService } from 'src/shared/services/email.service';
 
 @Injectable()
 export class AuthService {
@@ -18,7 +19,8 @@ export class AuthService {
         private readonly tokenService: TokenService,
         private readonly roleService: RoleService,
         private readonly authRepository: AuthRepository,
-        private readonly shareRepository: ShareUserRepository
+        private readonly shareRepository: ShareUserRepository,
+        private readonly emailService: EmailService
     ) {}
 
     async register(body: RegisterBodyType) {
@@ -84,6 +86,17 @@ export class AuthService {
         });
 
         //3. Gửi mã OTP đến email người dùng
+        const {error} = await this.emailService.sendOTP({
+            email: body.email,
+            code: code
+        })
+        if(error) {
+            throw new UnprocessableEntityException({
+                message: 'Có lỗi xảy ra khi gửi OTP',
+                path: 'email',
+            })
+        }
+
 
         return verificationCode;
     }
