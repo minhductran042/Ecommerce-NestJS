@@ -63,10 +63,10 @@ model Language {
 model User {
   id                          Int                   @id @default(autoincrement())
   email                       String                @unique
-  name                        String
-  password                    String
-  phoneNumber                 String
-  avatar                      String?
+  name                        String                @db.VarChar(500)
+  password                    String                @db.VarChar(100)
+  phoneNumber                 String                @db.VarChar(15) 
+  avatar                      String?               @db.VarChar(1000) 
   totpSecret                  String?
   status                      UserStatus            @default(ACTIVE)
   roleId                      Int
