@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{subject}}</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        
+        .container {
+            max-width: 500px;
+            margin: 50px auto;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 40px 30px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="20" cy="20" r="2" fill="rgba(255,255,255,0.1)"/><circle cx="80" cy="40" r="1.5" fill="rgba(255,255,255,0.1)"/><circle cx="60" cy="70" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="30" cy="80" r="2.5" fill="rgba(255,255,255,0.1)"/><circle cx="90" cy="20" r="1" fill="rgba(255,255,255,0.1)"/></svg>');
+        }
+        
+        .header-icon {
+            font-size: 60px;
+            margin-bottom: 15px;
+            display: block;
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        .header h1 {
+            color: #ffffff;
+            margin: 0;
+            font-size: 24px;
+            font-weight: 300;
+            letter-spacing: 1px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .content {
+            padding: 50px 40px;
+            text-align: center;
+            background: linear-gradient(180deg, #ffffff 0%, #f8f9ff 100%);
+        }
+        
+        .message {
+            color: #4a5568;
+            font-size: 18px;
+            margin-bottom: 40px;
+            font-weight: 500;
+        }
+        
+        .otp-container {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            border-radius: 20px;
+            padding: 40px 30px;
+            margin: 30px 0;
+            box-shadow: 0 15px 35px rgba(79, 172, 254, 0.3);
+            position: relative;
+            overflow: hidden;
+            transform: scale(1);
+            transition: transform 0.3s ease;
+        }
+        
+        .otp-container::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: shimmer 4s ease-in-out infinite;
+        }
+        
+        .otp-container:hover {
+            transform: scale(1.02);
+        }
+        
+        .otp-label {
+            color: #ffffff;
+            font-size: 14px;
+            margin-bottom: 20px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            opacity: 0.9;
+        }
+        
+        .otp-code {
+            font-size: 48px;
+            font-weight: bold;
+            color: #ffffff;
+            letter-spacing: 12px;
+            font-family: 'Courier New', monospace;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 20px 30px;
+            border-radius: 15px;
+            display: inline-block;
+            margin: 10px 0;
+            position: relative;
+            z-index: 1;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+        
+        .decorative-line {
+            width: 60px;
+            height: 4px;
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            margin: 30px auto;
+            border-radius: 2px;
+            animation: expand 2s ease-in-out infinite alternate;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        @keyframes shimmer {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(90deg); }
+            50% { transform: rotate(180deg); }
+            75% { transform: rotate(270deg); }
+        }
+        
+        @keyframes glow {
+            0% { box-shadow: 0 0 5px rgba(255, 255, 255, 0.2); }
+            100% { box-shadow: 0 0 20px rgba(255, 255, 255, 0.4), 0 0 30px rgba(255, 255, 255, 0.1); }
+        }
+        
+        @keyframes expand {
+            0% { width: 60px; }
+            100% { width: 80px; }
+        }
+        
+        @media only screen and (max-width: 600px) {
+            .container {
+                margin: 20px auto;
+                width: calc(100% - 40px);
+            }
+            
+            .header, .content {
+                padding: 30px 20px;
+            }
+            
+            .otp-code {
+                font-size: 36px;
+                letter-spacing: 8px;
+                padding: 15px 20px;
+            }
+            
+            .header-icon {
+                font-size: 50px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <span class="header-icon">🔐</span>
+            <h1>Mã Xác Thực</h1>
+        </div>
+        
+        <div class="content">
+            <div class="message">
+                Mã OTP của bạn
+            </div>
+            
+            <div class="decorative-line"></div>
+            
+            <div class="otp-container">
+                <div class="otp-label">Verification Code</div>
+                <div class="otp-code">{{code}}</div>
+            </div>
+            
+            <div class="decorative-line"></div>
+        </div>
+    </div>
+</body>
+</html>
