@@ -22,7 +22,7 @@ export const RegisterBodySchema = UserSchema.pick({ // Chỉ lấy các trườn
     }
 }) // strict: 
 
-export type RegisterBodyType = z.infer<typeof RegisterBodySchema>; // Sử dụng kiểu này trong các phần khác của ứng dụng
+
 
 
 //==================================================
@@ -31,7 +31,6 @@ export const RegisterResSchema = UserSchema.omit({
     totpSecret: true,
 })
 
-export type RegisterResType = z.infer<typeof RegisterResSchema>; // Sử dụng kiểu này trong các phần khác của ứng dụng
 
 
 
@@ -45,7 +44,6 @@ export const VerificationCodeSchema = z.object({
     createdAt: z.coerce.date(),
 })
 
-export type VerificationCodeType = z.infer<typeof VerificationCodeSchema>; // Sử dụng kiểu này trong các phần khác của ứng dụng
 
 
 //==================================================
@@ -55,7 +53,7 @@ export const sendOTPBodySchema = VerificationCodeSchema.pick({
     type: true
 })
 
-export type SendOTPBodyType = z.infer<typeof sendOTPBodySchema>; // Sử dụng kiểu này trong các phần khác của ứng dụng
+
 
 
 export const loginBodySchema = UserSchema.pick({
@@ -63,7 +61,7 @@ export const loginBodySchema = UserSchema.pick({
     password: true,
 }).strict() // strict : không cho phép các trường ngoài email và password nghĩa là nếu gửi thêm các trường khác sẽ báo lỗi
 
-export type LoginBodyType = z.infer<typeof loginBodySchema>; // Sử dụng kiểu này trong các phần khác của ứng dụng
+
 
 
 export const LoginResShema = z.object({
@@ -72,18 +70,16 @@ export const LoginResShema = z.object({
 })
 
 
-export type LoginResType = z.infer<typeof LoginResShema>; // Sử dụng kiểu này trong các phần khác của ứng dụng
+
 
 
 export const RefreshTokenBodySchema = z.object({
     refreshToken: z.string(),
 }).strict()
 
-export type RefreshTokenBodyType = z.infer<typeof RefreshTokenBodySchema>; // Sử dụng kiểu này trong các phần khác của ứng dụng
+
 
 export const RefreshTokenResSchema = LoginResShema
-
-export type RefreshTokenResType = LoginResType
 
 
 //==================================================
@@ -97,7 +93,6 @@ export const DeviceSchema = z.object({
     isActive: z.boolean()
 })
 
-export type DeviceType = z.infer<typeof DeviceSchema>;
 
 
 export const RoleSchema = z.object({
@@ -112,4 +107,29 @@ export const RoleSchema = z.object({
     updatedAt: z.date(),
 })
 
+export const RefreshToekenSchema = z.object({
+    token: z.string,
+    userId: z.string,
+    deviceId: z.string,
+    expiresAt: z.string,
+    createdAt: z.string,
+})
+
+
+
+export const logoutBodySchema = RefreshTokenBodySchema
+
+
+
+export type RegisterBodyType = z.infer<typeof RegisterBodySchema>; // Sử dụng kiểu này trong các phần khác của ứng dụng
+export type RegisterResType = z.infer<typeof RegisterResSchema>; // Sử dụng kiểu này trong các phần khác của ứng dụng
+export type VerificationCodeType = z.infer<typeof VerificationCodeSchema>; // Sử dụng kiểu này trong các phần khác của ứng dụng
+export type SendOTPBodyType = z.infer<typeof sendOTPBodySchema>; // Sử dụng kiểu này trong các phần khác của ứng dụng
+export type LoginBodyType = z.infer<typeof loginBodySchema>; // Sử dụng kiểu này trong các phần khác của ứng dụng
+export type LoginResType = z.infer<typeof LoginResShema>; // Sử dụng kiểu này trong các phần khác của ứng dụng
+export type RefreshTokenBodyType = z.infer<typeof RefreshTokenBodySchema>; // Sử dụng kiểu này trong các phần khác của ứng dụng
+export type RefreshTokenResType = LoginResType
+export type DeviceType = z.infer<typeof DeviceSchema>;
 export type RoleType = z.infer<typeof RoleSchema>;
+export type RefreshTokenType = z.infer<typeof RefreshToekenSchema>
+export type logoutBodyType = RefreshTokenBodyType
