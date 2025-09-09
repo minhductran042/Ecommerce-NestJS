@@ -1,9 +1,9 @@
 import { ConflictException, HttpException, Injectable, UnauthorizedException, UnprocessableEntityException} from '@nestjs/common';
 import { HashingService } from '../../shared/services/hashing.service';
 import { TokenService } from 'src/shared/services/token.service';
-import { generateOTP, isUniqueConstraintPrismaError } from 'src/shared/helper';
+import { generateOTP, isNotFoundPrismaError, isUniqueConstraintPrismaError } from 'src/shared/helper';
 import { RoleService } from './role.service';
-import { LoginBodyType, RefreshTokenBodyType, RegisterBodyType, SendOTPBodyType } from './auth.model';
+import { LoginBodyType, logoutBodyType, RefreshTokenBodyType, RegisterBodyType, SendOTPBodyType } from './auth.model';
 import { AuthRepository } from './auth.repo';
 import { ShareUserRepository } from 'src/shared/repository/share-user.repo';
 import envConfig from 'src/shared/config';
@@ -220,28 +220,32 @@ export class AuthService {
     }
 
 
-    // async logout(refreshToken: string) {
-    //     try {
-    //         //1. Kiểm tra xem refresh token có hợp lệ không
-    //         const userId = await this.tokenService.verifyRefreshToken(refreshToken);
+    async logout({ refreshToken }: logoutBodyType) {
+        try {
+            //1. Kiểm tra xem refresh token có hợp lệ không
+            const userId = await this.tokenService.verifyRefreshToken(refreshToken);
 
-    //         //2. Xoa token 
-    //         await this.prismaService.refreshToken.delete({
-    //             where: {
-    //                 token: refreshToken
-    //             }
-    //         });
+            //2. Xoa token 
+            const deleteRefreshToken = await this.authRepository.deleteRefreshToken({
+                token: refreshToken
+            })
 
-    //         return {
-    //             message: 'Logout successfully'
-    //         }
-    //     } catch (error) {
-    //         // Truong hợp đã sử dụng refresh token hoặc token không hợp lệ
-    //         if(isNotFoundPrismaError(error)) {
-    //             throw new UnauthorizedException('Refresh token is invalid or has been used')
-    //         }
-    //         throw new UnauthorizedException
-    //     }
-    // }
+        
+            //3. Cap nhat device la da logout
+            await this.authRepository.updateDevice(deleteRefreshToken.deviceId, {
+                isActive: false,
+            })
+
+            return {
+                message: 'Logout successfully'
+            }
+        } catch (error) {
+            // Truong hợp đã sử dụng refresh token hoặc token không hợp lệ
+            if(isNotFoundPrismaError(error)) {
+                throw new UnauthorizedException('Refresh token is invalid or has been used')
+            }
+            throw new UnauthorizedException
+        }
+    }
     
 }

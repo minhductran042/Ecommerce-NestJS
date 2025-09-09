@@ -1,8 +1,9 @@
 import { Body, ClassSerializerInterceptor, Controller, HttpCode, HttpStatus, Post, SerializeOptions, UseGuards, UseInterceptors, Req, Ip } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { LoginBodyDTO, LoginResDTO, RefreshTokenBodyDTO, RefreshTokenResDTO, RegisterBodyDTO, RegisterResponseDTO, SendOTPBodyDTO } from './auth.dto';
+import { LoginBodyDTO, LoginResDTO, LogoutBodyDTO, RefreshTokenBodyDTO, RefreshTokenResDTO, RegisterBodyDTO, RegisterResponseDTO, SendOTPBodyDTO } from './auth.dto';
 import { ZodSerializerDto } from 'nestjs-zod';
 import { UserAgent } from 'src/shared/decorator/user-agent.decorator';
+import { MessageResDTO } from 'src/shared/dtos/response.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -44,8 +45,9 @@ export class AuthController {
         })
     }
 
-    // @Post('logout')
-    // async logout(@Body() body: any) {
-    //     return await this.authService.logout(body.refreshToken);
-    // }
+    @Post('logout')
+    @ZodSerializerDto(MessageResDTO)
+    async logout(@Body() body: LogoutBodyDTO) {
+        return await this.authService.logout(body);
+    }
 }
