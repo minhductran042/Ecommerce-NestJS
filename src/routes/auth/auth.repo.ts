@@ -1,9 +1,9 @@
 import { Injectable } from "@nestjs/common";
 import { PrismaService } from "src/shared/services/prisma.service";
-import { DeviceType, RegisterBodyType, RoleType, VerificationCodeType } from "./auth.model";
+import { DeviceType, RefreshTokenType, RegisterBodyType, RoleType, VerificationCodeType } from "./auth.model";
 import { UserType } from "src/shared/models/share-user.model";
 import { TypeOfVerificationCodeType } from "src/shared/constants/auth.constant";
-import { Role } from "@prisma/client";
+import { Role, User } from "@prisma/client";
 
 @Injectable()
 export class AuthRepository {
@@ -67,12 +67,45 @@ export class AuthRepository {
     }
     
 
-    async findUniqueUserIncludeRole(uniqueObject: {email: string} | {id: number}) : Promise<UserType & {role: RoleType} | null> {
+    async findUniqueUserIncludeRole(uniqueObject: {email: string} | {id: number}) : 
+    Promise<UserType & {role: RoleType} | null> {
         return this.PrismaService.user.findUnique({
             where: uniqueObject,
             include: {
                 role: true
             }
+        })
+    }
+
+    async findUniqueRefreshTokenIncludeUserRole(uniqueObject: {token: string}) : 
+    Promise<RefreshTokenType & {user: UserType & {role: RoleType} } | null > 
+    
+    {
+        return this.PrismaService.refreshToken.findUnique({
+            where: uniqueObject,
+            include: {
+                user: {
+                    include: {
+                        role: true
+                    }
+                }
+            }
+        })
+    }
+
+
+    async updateDevice(deviceId: number , data: Partial<DeviceType>) : Promise<DeviceType> {
+        return await this.PrismaService.device.update({
+            where: {
+                id: deviceId
+            }, 
+            data
+        })
+    }
+
+    async deleteRefreshToken(uniqueObject: {token : string}) : Promise<RefreshTokenType> {
+        return await this.PrismaService.refreshToken.delete({
+            where: uniqueObject
         })
     }
 }

@@ -107,12 +107,12 @@ export const RoleSchema = z.object({
     updatedAt: z.date(),
 })
 
-export const RefreshToekenSchema = z.object({
-    token: z.string,
-    userId: z.string,
-    deviceId: z.string,
-    expiresAt: z.string,
-    createdAt: z.string,
+export const RefreshTokenSchema = z.object({
+    token: z.string(),
+    userId: z.number(),
+    deviceId: z.number(),
+    expiresAt: z.coerce.date(),
+    createdAt: z.coerce.date(),
 })
 
 
@@ -131,5 +131,5 @@ export type RefreshTokenBodyType = z.infer<typeof RefreshTokenBodySchema>; // Sá
 export type RefreshTokenResType = LoginResType
 export type DeviceType = z.infer<typeof DeviceSchema>;
 export type RoleType = z.infer<typeof RoleSchema>;
-export type RefreshTokenType = z.infer<typeof RefreshToekenSchema>
+export type RefreshTokenType = z.infer<typeof RefreshTokenSchema>
 export type logoutBodyType = RefreshTokenBodyType

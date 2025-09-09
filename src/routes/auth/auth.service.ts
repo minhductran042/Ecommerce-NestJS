@@ -1,9 +1,9 @@
-import { ConflictException, Injectable, UnprocessableEntityException} from '@nestjs/common';
+import { ConflictException, HttpException, Injectable, UnauthorizedException, UnprocessableEntityException} from '@nestjs/common';
 import { HashingService } from '../../shared/services/hashing.service';
 import { TokenService } from 'src/shared/services/token.service';
 import { generateOTP, isUniqueConstraintPrismaError } from 'src/shared/helper';
 import { RoleService } from './role.service';
-import { LoginBodyType, RegisterBodyType, SendOTPBodyType } from './auth.model';
+import { LoginBodyType, RefreshTokenBodyType, RegisterBodyType, SendOTPBodyType } from './auth.model';
 import { AuthRepository } from './auth.repo';
 import { ShareUserRepository } from 'src/shared/repository/share-user.repo';
 import envConfig from 'src/shared/config';
@@ -141,6 +141,8 @@ export class AuthService {
         return tokens;
     }
 
+
+
     async generateTokens({userId, deviceId, roleId, roleName}: AccessTokenPayloadCreate ) {
         const [acccessToken, refreshToken] = await Promise.all([
             this.tokenService.signAccessToken({
@@ -169,34 +171,53 @@ export class AuthService {
     }
 
 
-    // async refreshToken(refreshToken: string) {
-    //     try {
-    //         //1. Kiểm tra xem refresh token có hợp lệ không
-    //         const decoded = await this.tokenService.verifyRefreshToken(refreshToken);
+    async refreshToken({
+        refreshToken,
+        userAgent,
+        ip
+    }: RefreshTokenBodyType & { userAgent: string; ip: string  })  {
+        try {
+            //1. Kiểm tra xem refresh token có hợp lệ không
+            const { userId } = await this.tokenService.verifyRefreshToken(refreshToken);
 
-    //         //2. Kiểm tra xem refresh token có tồn tại trong cơ sở dữ liệu không
-    //         await this.prismaService.refreshToken.findUniqueOrThrow({
-    //             where: {
-    //                 token: refreshToken
-    //             }
-    //         })
-    //         //3. Xoa token cũ
-    //         await this.prismaService.refreshToken.delete({
-    //             where: {
-    //                 token: refreshToken
-    //             }
-    //         });
+            //2. Kiểm tra xem refresh token có tồn tại trong cơ sở dữ liệu không
+            const refreshTokenInDb = await this.authRepository.findUniqueRefreshTokenIncludeUserRole({
+                token: refreshToken
+            })
 
-    //         //4. Tạo mới access token và refresh token
-    //         return await this.generateTokens({ userId: decoded.userId });
-    //     } catch (error) {
-    //         // Truong hợp đã sử dụng refresh token hoặc token không hợp lệ
-    //         if(isNotFoundPrismaError(error)) {
-    //             throw new UnauthorizedException('Refresh token is invalid or has been used')
-    //         }
-    //         throw new UnauthorizedException
-    //     }
-    // }
+            if(!refreshTokenInDb) {
+                // Truong hợp đã sử dụng refresh token hoặc token không hợp lệ
+                throw new UnauthorizedException('Refresh Token has been used')
+            }
+
+            //3. Cập nhật device 
+            const {deviceId , user: {roleId, name: roleName}} = refreshTokenInDb;
+            const $updateDevice =   this.authRepository.updateDevice( deviceId , { 
+                userAgent, 
+                ip 
+            }) 
+
+
+            //4. Xoa token cũ
+
+            const $deleteRefreshToken = this.authRepository.deleteRefreshToken({
+                token: refreshToken
+            })
+
+
+            //5. Tạo mới access token và refresh token 
+            const $tokens = this.generateTokens({ userId, deviceId , roleId, roleName }) 
+
+            const [, , tokens] = await Promise.all([$updateDevice, $deleteRefreshToken, $tokens]) 
+            return tokens;
+
+        } catch (error) {
+            if(error instanceof HttpException) {
+                throw error
+            }
+            throw new UnauthorizedException()
+        }
+    }
 
 
     // async logout(refreshToken: string) {
