@@ -3,7 +3,7 @@ import { HashingService } from '../../shared/services/hashing.service';
 import { TokenService } from 'src/shared/services/token.service';
 import { generateOTP, isUniqueConstraintPrismaError } from 'src/shared/helper';
 import { RoleService } from './role.service';
-import { RegisterBodyType, SendOTPBodyType } from './auth.model';
+import { LoginBodyType, RegisterBodyType, SendOTPBodyType } from './auth.model';
 import { AuthRepository } from './auth.repo';
 import { ShareUserRepository } from 'src/shared/repository/share-user.repo';
 import envConfig from 'src/shared/config';
@@ -11,6 +11,7 @@ import { addMilliseconds } from 'date-fns';
 import ms from 'ms';
 import path from 'path';
 import { EmailService } from 'src/shared/services/email.service';
+import { AccessTokenPayloadCreate } from 'src/shared/types/jwt.type';
 
 @Injectable()
 export class AuthService {
@@ -19,7 +20,7 @@ export class AuthService {
         private readonly tokenService: TokenService,
         private readonly roleService: RoleService,
         private readonly authRepository: AuthRepository,
-        private readonly shareRepository: ShareUserRepository,
+        private readonly shareUserRepository: ShareUserRepository,
         private readonly emailService: EmailService
     ) {}
 
@@ -68,7 +69,7 @@ export class AuthService {
 
     async sendOTP(body: SendOTPBodyType) {
         //1. Kiểm tra email đã tồn tại trong hệ thống chưa
-        const user = await this.shareRepository.findUniqueObject({ email: body.email });
+        const user = await this.authRepository.findUniqueUserIncludeRole({ email: body.email });
         if(user) {
             throw new UnprocessableEntityException({
                     message: 'Email đã tồn tại',
@@ -101,48 +102,71 @@ export class AuthService {
         return verificationCode;
     }
 
-    // async login(body: any) {
-    //     const user = await this.prismaService.user.findUnique({
-    //         where: {
-    //             email: body.email,
-    //         }
-    //     })
-    //     if(!user) {
-    //         throw new UnauthorizedException('Account does not exist')
-    //     }
+    async login(body: LoginBodyType & {userAgent: string, ip: string}) {
+        const user = await this.authRepository.findUniqueUserIncludeRole({
+            email: body.email
+        })
+        if(!user) {
+            throw new UnprocessableEntityException({
+                message: 'User not found',
+                path: 'email',
+            })
+        }
 
-    //     const isPasswordMatch = await this.hashingService.compare(body.password, user.password)
-    //     if(!isPasswordMatch) {
-    //         throw new UnprocessableEntityException([
-    //             {
-    //                 field: 'password',
-    //                 error: 'Incorrect password'
-    //             }
-    //         ])
-    //     }
-    //     const tokens = await this.generateTokens({ userId: user.id });
-    //     return tokens;
-    // }
+        const isPasswordMatch = await this.hashingService.compare(body.password, user.password)
+        if(!isPasswordMatch) {
+            throw new UnprocessableEntityException([
+                {
+                    field: 'password',
+                    error: 'Incorrect password'
+                }
+            ])
+        }
 
-    // async generateTokens(payload: { userId: number }) {
-    //     const [acccessToken, refreshToken] = await Promise.all([
-    //         this.tokenService.signAccessToken(payload),
-    //         this.tokenService.signRefreshToken(payload)
-    //     ]);
+        // Tạo record device
+        const device = await this.authRepository.createDevice({
+            userId: user.id,
+            userAgent: body.userAgent,
+            ip: body.ip
+        })
 
-    //     const decodeRefreshToken = await this.tokenService.verifyRefreshToken(refreshToken)
-    //     await this.prismaService.refreshToken.create({
-    //         data: {
-    //             token: refreshToken,
-    //             userId: payload.userId,
-    //             expiresAt: new Date(decodeRefreshToken.exp * 1000) // Chuyển đổi giây sang mili giây
-    //         }
-    //     });
-    //     return {
-    //         accessToken: acccessToken,
-    //         refreshToken: refreshToken
-    //     }
-    // }
+
+        const tokens = await this.generateTokens({
+            userId: user.id,
+            deviceId: device.id,
+            roleId: user.roleId,
+            roleName: user.role.name
+        });
+
+        return tokens;
+    }
+
+    async generateTokens({userId, deviceId, roleId, roleName}: AccessTokenPayloadCreate ) {
+        const [acccessToken, refreshToken] = await Promise.all([
+            this.tokenService.signAccessToken({
+                userId,
+                deviceId,
+                roleId,
+                roleName
+            }),
+            this.tokenService.signRefreshToken({
+                userId
+            })
+        ]);
+
+        const decodeRefreshToken = await this.tokenService.verifyRefreshToken(refreshToken)
+        await this.authRepository.createRefreshToken({
+                token: refreshToken,
+                userId,
+                deviceId,
+                expiresAt: new Date(decodeRefreshToken.exp * 1000) // Chuyển đổi giây sang mili giây,
+                
+        });
+        return {
+            accessToken: acccessToken,
+            refreshToken: refreshToken
+        }
+    }
 
 
     // async refreshToken(refreshToken: string) {
