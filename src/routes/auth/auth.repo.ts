@@ -9,13 +9,23 @@ import { Role, User } from "@prisma/client";
 export class AuthRepository {
     constructor(private readonly PrismaService: PrismaService) {}
 
-    async createUser(user: Omit<RegisterBodyType, 'confirmPassword' | 'code'> & Pick<UserType, 'roleId'>) : 
+    async createUser(user: Pick<UserType, 'email' | 'name'| 'phoneNumber' | 'roleId' | 'password'>) : 
     Promise<Omit<UserType, 'password' | 'totpSecret'>> { // Promise là kiểu trả về với password và toptSecret bị loại bỏ
         return this.PrismaService.user.create({
                 data: user,
                 omit: {
                     password: true,
                     totpSecret: true,
+                }
+            })
+    }
+
+    async createUserIncludeRole(user: Pick<UserType, 'email' | 'name'| 'phoneNumber' | 'roleId' | 'password' | 'avatar'>) : 
+    Promise<UserType & {role: RoleType}> { // Promise là kiểu trả về với password và toptSecret bị loại bỏ
+        return this.PrismaService.user.create({
+                data: user,
+                include: {
+                    role: true
                 }
             })
     }
