@@ -193,7 +193,7 @@ export class AuthService {
             }
 
             //3. Cập nhật device 
-            const {deviceId , user: {roleId, name: roleName}} = refreshTokenInDb;
+            const {deviceId , user: {roleId, role: {name: roleName}}} = refreshTokenInDb;
             const $updateDevice =   this.authRepository.updateDevice( deviceId , { 
                 userAgent, 
                 ip 
