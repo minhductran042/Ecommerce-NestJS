@@ -1,6 +1,6 @@
 
 import { createZodDto } from 'nestjs-zod'
-import { getAuthorizationUrlResSchema, loginBodySchema, LoginResShema, logoutBodySchema, RefreshTokenBodySchema, RefreshTokenResSchema, RegisterBodySchema, RegisterResSchema, sendOTPBodySchema } from './auth.model';
+import { ForgotPasswordBodySchema, getAuthorizationUrlResSchema, loginBodySchema, LoginResShema, logoutBodySchema, RefreshTokenBodySchema, RefreshTokenResSchema, RegisterBodySchema, RegisterResSchema, sendOTPBodySchema } from './auth.model';
 import { create } from 'domain';
 import { extend } from 'zod/mini';
 
@@ -21,3 +21,5 @@ export class RefreshTokenResDTO extends createZodDto(RefreshTokenResSchema) {}
 export class LogoutBodyDTO extends createZodDto(logoutBodySchema) {}
 
 export class GetAuthorizationUrlResDTO extends createZodDto(getAuthorizationUrlResSchema) {}
+
+export class ForgotPasswordBodyDTO extends createZodDto(ForgotPasswordBodySchema) {}

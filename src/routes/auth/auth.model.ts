@@ -23,8 +23,6 @@ export const RegisterBodySchema = UserSchema.pick({ // Chỉ lấy các trườn
 }) // strict: 
 
 
-
-
 //==================================================
 export const RegisterResSchema = UserSchema.omit({
     password: true,
@@ -68,7 +66,6 @@ export const LoginResShema = z.object({
     accessToken: z.string(),
     refreshToken: z.string(),
 })
-
 
 
 
@@ -128,6 +125,26 @@ export const getAuthorizationUrlResSchema = z.object({
 })
 
 
+//==========================================
+
+
+export const ForgotPasswordBodySchema = z.object({
+    email: z.string().email(),
+    code: z.string().length(6),
+    newPassword: z.string().min(6).max(100),
+    confirmPassword: z.string().min(6).max(100)
+}).strict()
+.superRefine(({confirmPassword, newPassword}, ctx) => {
+    if(newPassword != confirmPassword) {
+        ctx.addIssue({
+            code: 'custom',
+            message: 'New password and confirm password do not match',
+            path: ['confirmPassword']
+        })
+    }
+})
+
+
 export type RegisterBodyType = z.infer<typeof RegisterBodySchema>; // Sử dụng kiểu này trong các phần khác của ứng dụng
 export type RegisterResType = z.infer<typeof RegisterResSchema>; // Sử dụng kiểu này trong các phần khác của ứng dụng
 export type VerificationCodeType = z.infer<typeof VerificationCodeSchema>; // Sử dụng kiểu này trong các phần khác của ứng dụng
@@ -142,3 +159,4 @@ export type RefreshTokenType = z.infer<typeof RefreshTokenSchema>
 export type logoutBodyType = RefreshTokenBodyType
 export type GoogleAuthStateType = z.infer<typeof GoogleAuthStateSchema>
 export type getAuthorizationUrlType = z.infer<typeof getAuthorizationUrlResSchema>
+export type ForgotPasswordType = z.infer<typeof ForgotPasswordBodySchema>

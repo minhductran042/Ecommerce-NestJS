@@ -9,7 +9,7 @@ import { Role, User } from "@prisma/client";
 export class AuthRepository {
     constructor(private readonly PrismaService: PrismaService) {}
 
-    async createUser(user: Pick<UserType, 'email' | 'name'| 'phoneNumber' | 'roleId' | 'password'>) : 
+    createUser(user: Pick<UserType, 'email' | 'name'| 'phoneNumber' | 'roleId' | 'password'>) : 
     Promise<Omit<UserType, 'password' | 'totpSecret'>> { // Promise là kiểu trả về với password và toptSecret bị loại bỏ
         return this.PrismaService.user.create({
                 data: user,
@@ -20,7 +20,7 @@ export class AuthRepository {
             })
     }
 
-    async createUserIncludeRole(user: Pick<UserType, 'email' | 'name'| 'phoneNumber' | 'roleId' | 'password' | 'avatar'>) : 
+    createUserIncludeRole(user: Pick<UserType, 'email' | 'name'| 'phoneNumber' | 'roleId' | 'password' | 'avatar'>) : 
     Promise<UserType & {role: RoleType}> { // Promise là kiểu trả về với password và toptSecret bị loại bỏ
         return this.PrismaService.user.create({
                 data: user,
@@ -31,7 +31,7 @@ export class AuthRepository {
     }
 
 
-    async createVerificationCode(payload: Pick<VerificationCodeType, 'email' | 'code' | 'type' | 'expiresAt'>) : Promise<VerificationCodeType> {
+    createVerificationCode(payload: Pick<VerificationCodeType, 'email' | 'code' | 'type' | 'expiresAt'>) : Promise<VerificationCodeType> {
         return this.PrismaService.verificationCode.upsert({
             where: {
                 email: payload.email,
@@ -45,7 +45,7 @@ export class AuthRepository {
     }
 
 
-    async findUniqueVerificationCode(
+    findUniqueVerificationCode(
         uniqueValue: 
         {email: string} 
         | {id: number} 
@@ -113,12 +113,29 @@ export class AuthRepository {
         })
     }
 
-    async deleteRefreshToken(uniqueObject: {token : string}) : Promise<RefreshTokenType> {
-        return await this.PrismaService.refreshToken.delete({
+    deleteRefreshToken(uniqueObject: {token : string}) : Promise<RefreshTokenType> {
+        return this.PrismaService.refreshToken.delete({
             where: uniqueObject
         })
     }
 
 
+    updateUser(uniqueObject: {id : number} | {email: string} , data: Partial<Omit<UserType, 'id'>>) : Promise<UserType> {
+        return this.PrismaService.user.update({
+            where: uniqueObject,
+            data
+        })
+    }
 
+
+    deleteVerificationCode(uniqueObject: 
+        {id: number} 
+        | {email: string} 
+        | {email: string, code: string, type: TypeOfVerificationCodeType}) : Promise<VerificationCodeType> {
+        return this.PrismaService.verificationCode.delete({
+            where: uniqueObject
+        })
+
+    }
+    
 }
