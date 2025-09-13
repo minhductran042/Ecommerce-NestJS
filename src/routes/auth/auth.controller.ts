@@ -1,12 +1,11 @@
 import { Body, ClassSerializerInterceptor, Controller, HttpCode, HttpStatus, Post, SerializeOptions, UseGuards, UseInterceptors, Req, Ip, Get, Query, Res } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { ForgotPasswordBodyDTO, GetAuthorizationUrlResDTO, LoginBodyDTO, LoginResDTO, LogoutBodyDTO, RefreshTokenBodyDTO, RefreshTokenResDTO, RegisterBodyDTO, RegisterResponseDTO, SendOTPBodyDTO } from './auth.dto';
+import { DisableTwoFactorBodyDTO, ForgotPasswordBodyDTO, GetAuthorizationUrlResDTO, LoginBodyDTO, LoginResDTO, LogoutBodyDTO, RefreshTokenBodyDTO, RefreshTokenResDTO, RegisterBodyDTO, RegisterResponseDTO, SendOTPBodyDTO } from './auth.dto';
 import { ZodSerializerDto } from 'nestjs-zod';
 import { UserAgent } from 'src/shared/decorator/user-agent.decorator';
 import { MessageResDTO } from 'src/shared/dtos/response.dto';
 import { IsPublic } from 'src/shared/decorator/isPublic.decorator';
 import { GoogleService } from './google.service';
-import { codec } from 'zod';
 import express from 'express';
 import envConfig from 'src/shared/config';
 
@@ -86,5 +85,11 @@ export class AuthController {
     @ZodSerializerDto(MessageResDTO)
     forgotPassword(@Body() body : ForgotPasswordBodyDTO) {
         return this.authService.forgotPassword(body);
+    }
+
+
+    @Post('2fa/disable')
+    disable2FA(@Body() Body : DisableTwoFactorBodyDTO) {
+        return 
     }
 }

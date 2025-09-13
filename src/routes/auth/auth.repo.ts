@@ -7,11 +7,11 @@ import { Role, User } from "@prisma/client";
 
 @Injectable()
 export class AuthRepository {
-    constructor(private readonly PrismaService: PrismaService) {}
+    constructor(private readonly prismaService: PrismaService) {}
 
     createUser(user: Pick<UserType, 'email' | 'name'| 'phoneNumber' | 'roleId' | 'password'>) : 
     Promise<Omit<UserType, 'password' | 'totpSecret'>> { // Promise là kiểu trả về với password và toptSecret bị loại bỏ
-        return this.PrismaService.user.create({
+        return this.prismaService.user.create({
                 data: user,
                 omit: {
                     password: true,
@@ -22,7 +22,7 @@ export class AuthRepository {
 
     createUserIncludeRole(user: Pick<UserType, 'email' | 'name'| 'phoneNumber' | 'roleId' | 'password' | 'avatar'>) : 
     Promise<UserType & {role: RoleType}> { // Promise là kiểu trả về với password và toptSecret bị loại bỏ
-        return this.PrismaService.user.create({
+        return this.prismaService.user.create({
                 data: user,
                 include: {
                     role: true
@@ -32,9 +32,13 @@ export class AuthRepository {
 
 
     createVerificationCode(payload: Pick<VerificationCodeType, 'email' | 'code' | 'type' | 'expiresAt'>) : Promise<VerificationCodeType> {
-        return this.PrismaService.verificationCode.upsert({
+        return this.prismaService.verificationCode.upsert({
             where: {
-                email: payload.email,
+                email_code_type: {
+                    email: payload.email,
+                    code: payload.code,
+                    type: payload.type
+                }
             }, 
             create: payload,
             update: {
@@ -47,16 +51,17 @@ export class AuthRepository {
 
     findUniqueVerificationCode(
         uniqueValue: 
-        {email: string} 
         | {id: number} 
         | 
         {
-            email: string,
-            code: string,
-            type: TypeOfVerificationCodeType
+            email_code_type: {
+                email: string,
+                code: string,
+                type: TypeOfVerificationCodeType
+            }
         }
     ) : Promise<VerificationCodeType | null> {
-        return this.PrismaService.verificationCode.findUnique({
+        return this.prismaService.verificationCode.findUnique({
             where: uniqueValue
 
         })
@@ -64,14 +69,14 @@ export class AuthRepository {
 
 
     createRefreshToken(data: {token: string; userId: number; expiresAt: Date; deviceId: number}) {
-        return this.PrismaService.refreshToken.create({
+        return this.prismaService.refreshToken.create({
             data
         })
     }
 
     createDevice(data: Pick<DeviceType, 'userId' | 'userAgent' | 'ip'> & Partial<Pick<DeviceType, 'lastActive' | 'isActive'>>) { 
         // Partial là cho phép các trường lastActive và isActive không bắt buộc
-        return this.PrismaService.device.create({
+        return this.prismaService.device.create({
             data
         })
     }
@@ -79,7 +84,7 @@ export class AuthRepository {
 
     async findUniqueUserIncludeRole(uniqueObject: {email: string} | {id: number}) : 
     Promise<UserType & {role: RoleType} | null> {
-        return this.PrismaService.user.findUnique({
+        return this.prismaService.user.findUnique({
             where: uniqueObject,
             include: {
                 role: true
@@ -91,7 +96,7 @@ export class AuthRepository {
     Promise<RefreshTokenType & {user: UserType & {role: RoleType} } | null > 
     
     {
-        return this.PrismaService.refreshToken.findUnique({
+        return this.prismaService.refreshToken.findUnique({
             where: uniqueObject,
             include: {
                 user: {
@@ -105,7 +110,7 @@ export class AuthRepository {
 
 
     async updateDevice(deviceId: number , data: Partial<DeviceType>) : Promise<DeviceType> {
-        return await this.PrismaService.device.update({
+        return await this.prismaService.device.update({
             where: {
                 id: deviceId
             }, 
@@ -114,14 +119,14 @@ export class AuthRepository {
     }
 
     deleteRefreshToken(uniqueObject: {token : string}) : Promise<RefreshTokenType> {
-        return this.PrismaService.refreshToken.delete({
+        return this.prismaService.refreshToken.delete({
             where: uniqueObject
         })
     }
 
 
     updateUser(uniqueObject: {id : number} | {email: string} , data: Partial<Omit<UserType, 'id'>>) : Promise<UserType> {
-        return this.PrismaService.user.update({
+        return this.prismaService.user.update({
             where: uniqueObject,
             data
         })
@@ -130,9 +135,16 @@ export class AuthRepository {
 
     deleteVerificationCode(uniqueObject: 
         {id: number} 
-        | {email: string} 
-        | {email: string, code: string, type: TypeOfVerificationCodeType}) : Promise<VerificationCodeType> {
-        return this.PrismaService.verificationCode.delete({
+        | 
+        {
+            email_code_type: {
+                email: string,
+                code: string,
+                type: TypeOfVerificationCodeType
+            }
+        }
+    ) : Promise<VerificationCodeType> {
+        return this.prismaService.verificationCode.delete({
             where: uniqueObject
         })
 

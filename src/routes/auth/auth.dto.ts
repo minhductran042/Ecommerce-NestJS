@@ -1,8 +1,9 @@
 
 import { createZodDto } from 'nestjs-zod'
-import { ForgotPasswordBodySchema, getAuthorizationUrlResSchema, loginBodySchema, LoginResShema, logoutBodySchema, RefreshTokenBodySchema, RefreshTokenResSchema, RegisterBodySchema, RegisterResSchema, sendOTPBodySchema } from './auth.model';
+import { DisableTwoFactorBodySchema, ForgotPasswordBodySchema, getAuthorizationUrlResSchema, loginBodySchema, LoginResShema, logoutBodySchema, RefreshTokenBodySchema, RefreshTokenResSchema, RegisterBodySchema, RegisterResSchema, sendOTPBodySchema, TwoFactorSetupSchema } from './auth.model';
 import { create } from 'domain';
 import { extend } from 'zod/mini';
+import { Extensions } from '@prisma/client/runtime/library';
 
 export class RegisterResponseDTO extends createZodDto(RegisterResSchema) {}
 
@@ -23,3 +24,7 @@ export class LogoutBodyDTO extends createZodDto(logoutBodySchema) {}
 export class GetAuthorizationUrlResDTO extends createZodDto(getAuthorizationUrlResSchema) {}
 
 export class ForgotPasswordBodyDTO extends createZodDto(ForgotPasswordBodySchema) {}
+
+export class DisableTwoFactorBodyDTO extends createZodDto(DisableTwoFactorBodySchema) {}
+
+export class TwoFactorSetupResDTO extends createZodDto(TwoFactorSetupSchema) {}

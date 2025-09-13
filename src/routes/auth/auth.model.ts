@@ -37,7 +37,12 @@ export const VerificationCodeSchema = z.object({
     id: z.number(),
     email: z.string().email(),
     code: z.string().length(6),
-    type : z.enum([TypeOfVerificationCode.FORGOT_PASSWORD, TypeOfVerificationCode.REGISTER]),
+    type : z.enum([
+        TypeOfVerificationCode.FORGOT_PASSWORD, 
+        TypeOfVerificationCode.REGISTER, 
+        TypeOfVerificationCode.DISABLE_2FA, 
+        TypeOfVerificationCode.LOGIN
+    ]),
     expiresAt: z.coerce.date(),
     createdAt: z.coerce.date(),
 })
@@ -57,17 +62,16 @@ export const sendOTPBodySchema = VerificationCodeSchema.pick({
 export const loginBodySchema = UserSchema.pick({
     email: true,
     password: true,
-}).strict() // strict : không cho phép các trường ngoài email và password nghĩa là nếu gửi thêm các trường khác sẽ báo lỗi
-
-
+}).extend({
+    totpSecret: z.string().length(6).optional(), //2FA code
+    code: z.string().length(6).optional() //OTP code
+})
 
 
 export const LoginResShema = z.object({
     accessToken: z.string(),
     refreshToken: z.string(),
 })
-
-
 
 
 export const RefreshTokenBodySchema = z.object({
@@ -145,6 +149,34 @@ export const ForgotPasswordBodySchema = z.object({
 })
 
 
+export const DisableTwoFactorBodySchema = z.object({
+    totp: z.string().length(6).optional(), // 2FA code
+    code: z.string().length(6).optional() // otp code
+}).strict().superRefine(({code, totp}, ctx) => {
+    const message =  'You can not provide both otp code and 2FA code'
+    //Điều kiện nếu cả 2 không có hoặc cả 2 đều có
+    if( (code !== undefined) ===  (totp !== undefined)) {
+        ctx.addIssue({
+            code: 'custom',
+            message,
+            path: ['totp'],
+        })
+        ctx.addIssue({
+            code: 'custom',
+            message,
+            path: ['code'],
+        
+        })
+    }
+})
+
+
+export const TwoFactorSetupSchema = z.object({
+    secret: z.string(),
+    url: z.string()
+})
+
+
 export type RegisterBodyType = z.infer<typeof RegisterBodySchema>; // Sử dụng kiểu này trong các phần khác của ứng dụng
 export type RegisterResType = z.infer<typeof RegisterResSchema>; // Sử dụng kiểu này trong các phần khác của ứng dụng
 export type VerificationCodeType = z.infer<typeof VerificationCodeSchema>; // Sử dụng kiểu này trong các phần khác của ứng dụng
@@ -160,3 +192,5 @@ export type logoutBodyType = RefreshTokenBodyType
 export type GoogleAuthStateType = z.infer<typeof GoogleAuthStateSchema>
 export type getAuthorizationUrlType = z.infer<typeof getAuthorizationUrlResSchema>
 export type ForgotPasswordType = z.infer<typeof ForgotPasswordBodySchema>
+export type DisableTwoFactorBodyType = z.infer<typeof DisableTwoFactorBodySchema>
+export type TwoFactorSetupResType = z.infer<typeof TwoFactorSetupSchema>

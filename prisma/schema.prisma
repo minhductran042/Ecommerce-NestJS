@@ -31,6 +31,8 @@ enum OrderStatus {
 enum VerificationCodeType {
   REGISTER
   FORGOT_PASSWORD
+  LOGIN
+  DISABLE_2FA
 }
 
 enum HTTPMethod {
@@ -137,13 +139,13 @@ model UserTranslation {
 
 model VerificationCode {
   id        Int                   @id @default(autoincrement())
-  email     String                @unique @db.VarChar(500)
+  email     String                @db.VarChar(500)
   code      String                @db.VarChar(50)
   type      VerificationCodeType
   expiresAt DateTime
   createdAt DateTime              @default(now())
 
-  @@index([email, code, type])
+  @@unique([email, code, type]) // đảm bảo không có bản ghi khác có 3 trường này giống nhau
   @@index([expiresAt])
 }
 

@@ -26,6 +26,8 @@ export class AuthService {
         private readonly emailService: EmailService
     ) {}
 
+
+    
     async validateVerificationCode({
         email,
         code,
@@ -35,11 +37,15 @@ export class AuthService {
         code: string,
         type: TypeOfVerificationCodeType
     }) {
-        const verificationCode = await this.authRepository.findUniqueVerificationCode({
-            email,
-            code, 
-            type
-        })
+        const verificationCode = await this.authRepository.findUniqueVerificationCode(
+            {
+                email_code_type: {
+                    email,
+                    code, 
+                    type
+                }
+            }
+        )
 
         if(!verificationCode) {
             throw InvalidOTPException
@@ -50,6 +56,7 @@ export class AuthService {
         }
         return verificationCode
     }
+
 
 
     async register(body: RegisterBodyType) {
@@ -73,11 +80,13 @@ export class AuthService {
                 password: hashedPassword,
                 roleId: clientRoleId,
             }), 
-            this.authRepository.deleteVerificationCode(
+                this.authRepository.deleteVerificationCode(
                     {
-                        email: body.email,
-                        code: body.code,
-                        type: TypeOfVerificationCode.FORGOT_PASSWORD
+                        email_code_type : {
+                            email: body.email,
+                            code: body.code,
+                            type: TypeOfVerificationCode.FORGOT_PASSWORD
+                        }
                     }
                 )
         
@@ -194,6 +203,7 @@ export class AuthService {
     }
 
 
+
     async refreshToken({
         refreshToken,
         userAgent,
@@ -301,9 +311,11 @@ export class AuthService {
                 ,
                 this.authRepository.deleteVerificationCode(
                     {
-                        email: body.email,
-                        code: body.code,
-                        type: TypeOfVerificationCode.FORGOT_PASSWORD
+                        email_code_type: {
+                            email: body.email,
+                            code: body.code,
+                            type: TypeOfVerificationCode.FORGOT_PASSWORD
+                        }
                     }
                 )
             ]
