@@ -1,6 +1,6 @@
 import { Body, ClassSerializerInterceptor, Controller, HttpCode, HttpStatus, Post, SerializeOptions, UseGuards, UseInterceptors, Req, Ip, Get, Query, Res } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { DisableTwoFactorBodyDTO, ForgotPasswordBodyDTO, GetAuthorizationUrlResDTO, LoginBodyDTO, LoginResDTO, LogoutBodyDTO, RefreshTokenBodyDTO, RefreshTokenResDTO, RegisterBodyDTO, RegisterResponseDTO, SendOTPBodyDTO } from './auth.dto';
+import { DisableTwoFactorBodyDTO, ForgotPasswordBodyDTO, GetAuthorizationUrlResDTO, LoginBodyDTO, LoginResDTO, LogoutBodyDTO, RefreshTokenBodyDTO, RefreshTokenResDTO, RegisterBodyDTO, RegisterResponseDTO, SendOTPBodyDTO, TwoFactorSetupResDTO } from './auth.dto';
 import { ZodSerializerDto } from 'nestjs-zod';
 import { UserAgent } from 'src/shared/decorator/user-agent.decorator';
 import { MessageResDTO } from 'src/shared/dtos/response.dto';
@@ -8,6 +8,8 @@ import { IsPublic } from 'src/shared/decorator/isPublic.decorator';
 import { GoogleService } from './google.service';
 import express from 'express';
 import envConfig from 'src/shared/config';
+import { EmptyBodyDTO } from 'src/shared/dtos/request.dto';
+import { ActiveUser } from 'src/shared/decorator/active-user.decorator';
 
 @Controller('auth')
 export class AuthController {
@@ -85,6 +87,12 @@ export class AuthController {
     @ZodSerializerDto(MessageResDTO)
     forgotPassword(@Body() body : ForgotPasswordBodyDTO) {
         return this.authService.forgotPassword(body);
+    }
+
+     @Post('2fa/setup')
+    @ZodSerializerDto(TwoFactorSetupResDTO)
+    setupTwoFactorAuthentication(@Body() _ : EmptyBodyDTO, @ActiveUser('userId') userId: number) {
+        return this.authService.setupTwoFactorAuthentication(userId);
     }
 
 

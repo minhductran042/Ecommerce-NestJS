@@ -11,7 +11,6 @@ export const ActiveUser = createParamDecorator((field: keyof AccessTokenPayload 
         throw new Error(`User not authenticated. Field '${field}' not available.`);
     }
     
-    // Handle Promise if user is async
     if (user instanceof Promise) {
         return user.then(resolvedUser => field ? resolvedUser[field] : resolvedUser);
     }

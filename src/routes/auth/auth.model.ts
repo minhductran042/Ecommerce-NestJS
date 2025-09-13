@@ -173,7 +173,7 @@ export const DisableTwoFactorBodySchema = z.object({
 
 export const TwoFactorSetupSchema = z.object({
     secret: z.string(),
-    url: z.string()
+    uri: z.string()
 })
 
 

@@ -12,8 +12,10 @@ import ms from 'ms';
 import path from 'path';
 import { EmailService } from 'src/shared/services/email.service';
 import { AccessTokenPayloadCreate } from 'src/shared/types/jwt.type';
-import { EmailAlreadyExistesException, EmailNotFoundException, FailToSendOTPException, InvalidOTPException, OTPExpireException, RefreshTokenAlreadyUseException, UserNotFoundException } from './error.model';
+import { EmailAlreadyExistesException, EmailNotFoundException, FailToSendOTPException, InvalidOTPException, OTPExpireException, RefreshTokenAlreadyUseException, TOTPAlreadyEnableException, UserNotFoundException } from './error.model';
 import { TypeOfVerificationCode, TypeOfVerificationCodeType } from 'src/shared/constants/auth.constant';
+import { TwoFactorAuthService } from 'src/shared/services/2fa.service';
+import { email } from 'zod';
 
 @Injectable()
 export class AuthService {
@@ -23,7 +25,8 @@ export class AuthService {
         private readonly roleService: RoleService,
         private readonly authRepository: AuthRepository,
         private readonly shareUserRepository: ShareUserRepository,
-        private readonly emailService: EmailService
+        private readonly emailService: EmailService,
+        private readonly twoFactorAuthenticationService: TwoFactorAuthService
     ) {}
 
 
@@ -325,5 +328,39 @@ export class AuthService {
             message: 'Đổi mật khẩu thành công'
         }
 
+    }
+
+    
+    async setupTwoFactorAuthentication(userId : number) {
+        //1. Kiểm tra user có tồn tại hay không, có bật xác thực 2FA không
+        const user = await this.shareUserRepository.findUniqueObject(
+            {
+                id: userId
+            }
+        )
+
+        if(!user) {
+            throw UserNotFoundException
+        }
+
+        if(user.totpSecret) {
+            throw TOTPAlreadyEnableException
+        }
+
+        //2. Tạo ra secret và uri
+        const {secret, uri} = this.twoFactorAuthenticationService.generateTOTPSecret(user.email);
+
+        //3. Cập nhật secret vào user trong db
+        await this.authRepository.updateUser({
+            id: userId
+        }, {
+            totpSecret: secret
+        })
+
+        //4. Trả về secret và url cho client
+        return {
+            secret, 
+            uri
+        }
     }
 }

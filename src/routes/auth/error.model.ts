@@ -39,3 +39,24 @@ export const RefreshTokenAlreadyUseException = new UnauthorizedException(
 export const UnauthorizedAccessTokenException = new UnauthorizedException('Error.UnauthorizedAccess')
 
 export const GoogleUserInfoError = new Error('Error.FailedToGetUserInfoFromGoogle')
+
+
+export const TOTPAlreadyEnableException = new UnprocessableEntityException({
+    path: 'totpCode',
+    message: 'Error.TOTPAlreadyEnableException'
+})
+
+export const TOTPNotEnableException = new UnprocessableEntityException({
+    message: 'Error.TOTPNotEnableException',
+    path: 'totpCode'
+})
+
+export const InvalidTOTPAndCodeException = new UnprocessableEntityException([
+    {
+    message: 'Error.INVALIDOTPCODE',
+    path: 'totpCode'
+},  {
+    message: 'Error.INVALIDOTPCODE',
+    path: 'totpCode'
+}
+])
