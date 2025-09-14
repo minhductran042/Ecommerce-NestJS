@@ -63,8 +63,23 @@ export const loginBodySchema = UserSchema.pick({
     email: true,
     password: true,
 }).extend({
-    totpSecret: z.string().length(6).optional(), //2FA code
+    totpCode: z.string().length(6).optional(), //2FA code
     code: z.string().length(6).optional() //OTP code
+}).strict().superRefine(({code, totpCode}, ctx) => {
+    if(code !== undefined && totpCode !== undefined) {
+        const message = 'You can not provide both otp code and 2FA code'
+        ctx.addIssue({
+            code: 'custom',
+            message,
+            paht: ['code']
+        })
+
+        ctx.addIssue({
+            code: 'custom',
+            message,
+            paht: ['totpCode']
+        })
+    }
 })
 
 
@@ -138,7 +153,7 @@ export const ForgotPasswordBodySchema = z.object({
     newPassword: z.string().min(6).max(100),
     confirmPassword: z.string().min(6).max(100)
 }).strict()
-.superRefine(({confirmPassword, newPassword}, ctx) => {
+.superRefine(({confirmPassword, newPassword}, ctx) => { 
     if(newPassword != confirmPassword) {
         ctx.addIssue({
             code: 'custom',

@@ -60,3 +60,9 @@ export const InvalidTOTPAndCodeException = new UnprocessableEntityException([
     path: 'totpCode'
 }
 ])
+
+export const InvalidTOTPException = new UnprocessableEntityException({
+    message: "Error.InvalidOTPException",
+    path: 'totpCode'
+
+})

@@ -43,10 +43,10 @@ export class TwoFactorAuthService {
     }
 }
 
-const twoFactorAuthService = new TwoFactorAuthService();
-console.log(
-    twoFactorAuthService.verifyTOTP({
-        email: "minhductran058@gmail.com",
-        token: "404921",
-        secret: "JAWKWZPA377TGJG3WXUC6OEQ3D3HZS46"
-}))
+// const twoFactorAuthService = new TwoFactorAuthService();
+// console.log(
+//     twoFactorAuthService.verifyTOTP({
+//         email: "minhductran058@gmail.com",
+//         token: "404921",
+//         secret: "JAWKWZPA377TGJG3WXUC6OEQ3D3HZS46"
+// }))

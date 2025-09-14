@@ -11,7 +11,14 @@ import { ShareUserRepository } from './repository/share-user.repo';
 import { EmailService } from './services/email.service';
 import { TwoFactorAuthService } from './services/2fa.service';
 
-const sharedServices = [PrismaService, HashingService, TokenService, ShareUserRepository, EmailService, TwoFactorAuthService];
+const sharedServices = [
+    PrismaService, 
+    HashingService, 
+    TokenService, 
+    ShareUserRepository, 
+    EmailService, 
+    TwoFactorAuthService
+];
 
 @Global()
 @Module({

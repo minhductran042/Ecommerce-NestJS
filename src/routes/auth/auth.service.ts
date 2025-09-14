@@ -12,7 +12,7 @@ import ms from 'ms';
 import path from 'path';
 import { EmailService } from 'src/shared/services/email.service';
 import { AccessTokenPayloadCreate } from 'src/shared/types/jwt.type';
-import { EmailAlreadyExistesException, EmailNotFoundException, FailToSendOTPException, InvalidOTPException, OTPExpireException, RefreshTokenAlreadyUseException, TOTPAlreadyEnableException, UserNotFoundException } from './error.model';
+import { EmailAlreadyExistesException, EmailNotFoundException, FailToSendOTPException, InvalidOTPException, InvalidTOTPAndCodeException, InvalidTOTPException, OTPExpireException, RefreshTokenAlreadyUseException, TOTPAlreadyEnableException, UserNotFoundException } from './error.model';
 import { TypeOfVerificationCode, TypeOfVerificationCodeType } from 'src/shared/constants/auth.constant';
 import { TwoFactorAuthService } from 'src/shared/services/2fa.service';
 import { email } from 'zod';
@@ -141,6 +141,7 @@ export class AuthService {
     }
 
     async login(body: LoginBodyType & {userAgent: string, ip: string}) {
+        //1. Lấy thông tin user, check tồn tại, xem mk đúng k
         const user = await this.authRepository.findUniqueUserIncludeRole({
             email: body.email
         })
@@ -158,7 +159,38 @@ export class AuthService {
             ])
         }
 
-        // Tạo record device
+        //2. Nếu đã bật mã 2fa, kiểm tra mã 2fa totp code hoặc otp code(gmail)
+        if(user.totpSecret) {
+            //Nếu không có mã TOTP code hoặc mã otp code
+            if(!body.code && !body.totpCode) {
+                throw InvalidTOTPAndCodeException
+            }
+
+            if(body.totpCode) {
+                const isValid = this.twoFactorAuthenticationService.verifyTOTP({
+                    email: user.email,
+                    secret: user.totpSecret,
+                    token: body.totpCode
+                })
+
+                if(!isValid) {
+                    throw InvalidTOTPException
+                }
+            } else if (body.code) {
+                const isValid = this.validateVerificationCode({
+                    email: user.email,
+                    code: body.code,
+                    type: TypeOfVerificationCode.LOGIN
+                })
+
+                if(!isValid) {
+                    throw InvalidOTPException
+                }
+            } 
+
+        }
+
+        // 3.Tạo record device
         const device = await this.authRepository.createDevice({
             userId: user.id,
             userAgent: body.userAgent,
@@ -166,6 +198,7 @@ export class AuthService {
         })
 
 
+        //4. Trả về RefreshToken về cho người dùng
         const tokens = await this.generateTokens({
             userId: user.id,
             deviceId: device.id,
