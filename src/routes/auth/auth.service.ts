@@ -3,7 +3,7 @@ import { HashingService } from '../../shared/services/hashing.service';
 import { TokenService } from 'src/shared/services/token.service';
 import { generateOTP, isNotFoundPrismaError, isUniqueConstraintPrismaError } from 'src/shared/helper';
 import { RoleService } from './role.service';
-import { ForgotPasswordType, LoginBodyType, logoutBodyType, RefreshTokenBodyType, RegisterBodyType, SendOTPBodyType } from './auth.model';
+import { DisableTwoFactorBodyType, ForgotPasswordType, LoginBodyType, logoutBodyType, RefreshTokenBodyType, RegisterBodyType, SendOTPBodyType } from './auth.model';
 import { AuthRepository } from './auth.repo';
 import { ShareUserRepository } from 'src/shared/repository/share-user.repo';
 import envConfig from 'src/shared/config';
@@ -12,7 +12,7 @@ import ms from 'ms';
 import path from 'path';
 import { EmailService } from 'src/shared/services/email.service';
 import { AccessTokenPayloadCreate } from 'src/shared/types/jwt.type';
-import { EmailAlreadyExistesException, EmailNotFoundException, FailToSendOTPException, InvalidOTPException, InvalidTOTPAndCodeException, InvalidTOTPException, OTPExpireException, RefreshTokenAlreadyUseException, TOTPAlreadyEnableException, UserNotFoundException } from './error.model';
+import { EmailAlreadyExistesException, EmailNotFoundException, FailToSendOTPException, InvalidOTPException, InvalidTOTPAndCodeException, InvalidTOTPException, OTPExpireException, RefreshTokenAlreadyUseException, TOTPAlreadyEnableException, TOTPNotEnableException, UserNotFoundException } from './error.model';
 import { TypeOfVerificationCode, TypeOfVerificationCodeType } from 'src/shared/constants/auth.constant';
 import { TwoFactorAuthService } from 'src/shared/services/2fa.service';
 import { email } from 'zod';
@@ -395,5 +395,57 @@ export class AuthService {
             secret, 
             uri
         }
+    }
+
+    async disableTwoFactorAuthentication(data : DisableTwoFactorBodyType & {userId: number}) {
+        const {userId, code , totpCode } = data
+        //1. Kiểm tra user có tồn tại hay không, có bật xác thực 2FA không
+        const user = await this.shareUserRepository.findUniqueObject(
+            {
+                id: userId
+            }
+        )
+        if(!user) {
+            throw UserNotFoundException
+        }
+        if(!user.totpSecret) {
+            throw TOTPNotEnableException
+        }
+
+        //2. Kiểm tra mã code hoặc totp có hợp lệ không
+        if(totpCode) {
+            const isValid = this.twoFactorAuthenticationService.verifyTOTP({
+                email: user.email,
+                secret: user.totpSecret,
+                token: totpCode
+            })
+
+            if(!isValid) {
+                throw InvalidTOTPException
+            }
+
+        } else if(code) {
+            const isValid = await this.validateVerificationCode({
+                email: user.email,
+                code: code,
+                type: TypeOfVerificationCode.DISABLE_2FA
+            })
+
+            if(!isValid) {
+                throw InvalidOTPException
+            }
+        }
+
+        //3. Xóa secret trong db
+        await this.authRepository.updateUser({
+            id: userId
+        }, {
+            totpSecret: null
+        })
+
+        return {
+            message: 'Disable 2FA successfully'
+        }
+
     }
 }

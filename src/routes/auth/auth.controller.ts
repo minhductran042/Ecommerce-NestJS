@@ -89,7 +89,7 @@ export class AuthController {
         return this.authService.forgotPassword(body);
     }
 
-     @Post('2fa/setup')
+    @Post('2fa/setup')
     @ZodSerializerDto(TwoFactorSetupResDTO)
     setupTwoFactorAuthentication(@Body() _ : EmptyBodyDTO, @ActiveUser('userId') userId: number) {
         return this.authService.setupTwoFactorAuthentication(userId);
@@ -97,7 +97,11 @@ export class AuthController {
 
 
     @Post('2fa/disable')
-    disable2FA(@Body() Body : DisableTwoFactorBodyDTO) {
-        return 
+    @ZodSerializerDto(MessageResDTO)
+    disable2FA(@Body() body : DisableTwoFactorBodyDTO, @ActiveUser('userId') userId: number) {
+        return this.authService.disableTwoFactorAuthentication({
+            ...body,
+            userId
+        });
     }
 }

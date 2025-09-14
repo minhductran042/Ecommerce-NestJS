@@ -165,12 +165,12 @@ export const ForgotPasswordBodySchema = z.object({
 
 
 export const DisableTwoFactorBodySchema = z.object({
-    totp: z.string().length(6).optional(), // 2FA code
+    totpCode: z.string().length(6).optional(), // 2FA code
     code: z.string().length(6).optional() // otp code
-}).strict().superRefine(({code, totp}, ctx) => {
+}).strict().superRefine(({code, totpCode}, ctx) => {
     const message =  'You can not provide both otp code and 2FA code'
     //Điều kiện nếu cả 2 không có hoặc cả 2 đều có
-    if( (code !== undefined) ===  (totp !== undefined)) {
+    if( (code !== undefined) ===  (totpCode !== undefined)) {
         ctx.addIssue({
             code: 'custom',
             message,
