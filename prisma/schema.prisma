@@ -46,9 +46,8 @@ enum HTTPMethod {
 }
 
 model Language {
-  id                   Int                   @id @default(autoincrement())
-  name                 String                @unique
-  code                 String                @unique
+  id                   String                @id @db.VarChar(10)
+  name                 String                @db.VarChar(500)
   createdById          Int?
   updatedById          Int?
   deletedAt            DateTime?
@@ -60,6 +59,8 @@ model Language {
   productTranslations  ProductTranslation[]
   categoryTranslations CategoryTranslation[]
   brandTranslations    BrandTranslation[]
+
+  @@index([deletedAt]) 
 }
 
 model User {
@@ -118,12 +119,14 @@ model User {
   updatedBrandTranslations    BrandTranslation[]    @relation("BrandTranslationUpdatedBy")
   createdOrders               Order[]               @relation("OrderCreatedBy")
   updatedOrders               Order[]               @relation("OrderUpdatedBy")
+
+  @@index([deletedAt]) 
 }
 
 model UserTranslation {
   id          Int       @id @default(autoincrement())
   userId      Int
-  languageId  Int
+  languageId  String
   address     String?
   description String?
   createdById Int?
@@ -135,6 +138,8 @@ model UserTranslation {
   language    Language  @relation(fields: [languageId], references: [id])
   createdBy   User?     @relation("UserTranslationCreatedBy", fields: [createdById], references: [id])
   updatedBy   User?     @relation("UserTranslationUpdatedBy", fields: [updatedById], references: [id])
+
+  @@index([deletedAt]) 
 }
 
 model VerificationCode {
@@ -175,6 +180,8 @@ model Permission {
   createdBy   User?        @relation("PermissionCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
   updatedBy   User?        @relation("PermissionUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull)
   roles       Role[]       @relation("PermissionsRoles")
+
+  @@index([deletedAt]) 
 }
 
 model Role {
@@ -191,6 +198,8 @@ model Role {
   updatedBy   User?        @relation("RoleUpdatedBy", fields: [updatedById], references: [id])
   users       User[]
   permissions Permission[] @relation("PermissionsRoles")
+
+  @@index([deletedAt]) 
 }
 
 
@@ -226,12 +235,14 @@ model Product {
   reviews              Review[]
   categories           Category[]             @relation("ProductsCategories")
   productSKUSnapshots  ProductSKUSnapshot[]
+
+  @@index([deletedAt]) 
 }
 
 model ProductTranslation {
   id          Int       @id @default(autoincrement())
   productId   Int
-  languageId  Int
+  languageId  String
   name        String
   description String
   createdById Int?
@@ -243,6 +254,8 @@ model ProductTranslation {
   language    Language  @relation(fields: [languageId], references: [id])
   createdBy   User?     @relation("ProductTranslationCreatedBy", fields: [createdById], references: [id])
   updatedBy   User?     @relation("ProductTranslationUpdatedBy", fields: [updatedById], references: [id])
+
+  @@index([deletedAt]) 
 }
 
 model Category {
@@ -259,12 +272,14 @@ model Category {
   updatedBy            User?                 @relation("CategoryUpdatedBy", fields: [updatedById], references: [id])
   categoryTranslations CategoryTranslation[]
   products             Product[]             @relation("ProductsCategories")
+
+  @@index([deletedAt]) 
 }
 
 model CategoryTranslation {
   id          Int       @id @default(autoincrement())
   categoryId  Int
-  languageId  Int
+  languageId  String
   name        String
   description String
   createdById Int?
@@ -276,6 +291,8 @@ model CategoryTranslation {
   language    Language  @relation(fields: [languageId], references: [id])
   createdBy   User?     @relation("CategoryTranslationCreatedBy", fields: [createdById], references: [id])
   updatedBy   User?     @relation("CategoryTranslationUpdatedBy", fields: [updatedById], references: [id])
+
+  @@index([deletedAt]) 
 }
 
 model Variant {
@@ -291,6 +308,8 @@ model Variant {
   createdBy      User?           @relation("VariantCreatedBy", fields: [createdById], references: [id])
   updatedBy      User?           @relation("VariantUpdatedBy", fields: [updatedById], references: [id])
   variantOptions VariantOption[]
+
+  @@index([deletedAt]) 
 }
 
 model VariantOption {
@@ -306,6 +325,8 @@ model VariantOption {
   createdBy   User?     @relation("VariantOptionCreatedBy", fields: [createdById], references: [id])
   updatedBy   User?     @relation("VariantOptionUpdatedBy", fields: [updatedById], references: [id])
   skus        SKU[]     @relation("SkusVariantOptions")
+
+  @@index([deletedAt]) 
 }
 
 model SKU {
@@ -326,6 +347,8 @@ model SKU {
   cartItems           CartItem[]
   variantOptions      VariantOption[]      @relation("SkusVariantOptions")
   productSKUSnapshots ProductSKUSnapshot[]
+
+  @@index([deletedAt]) 
 }
 
 model Brand {
@@ -340,12 +363,14 @@ model Brand {
   updatedBy         User?              @relation("BrandUpdatedBy", fields: [updatedById], references: [id])
   products          Product[]
   brandTranslations BrandTranslation[]
+
+  @@index([deletedAt]) 
 }
 
 model BrandTranslation {
   id          Int       @id @default(autoincrement())
   brandId     Int
-  languageId  Int
+  languageId  String
   name        String
   description String
   createdById Int?
@@ -357,6 +382,8 @@ model BrandTranslation {
   language    Language  @relation(fields: [languageId], references: [id])
   createdBy   User?     @relation("BrandTranslationCreatedBy", fields: [createdById], references: [id])
   updatedBy   User?     @relation("BrandTranslationUpdatedBy", fields: [updatedById], references: [id])
+
+  @@index([deletedAt]) 
 }
 
 model CartItem {
@@ -398,6 +425,8 @@ model Order {
   createdBy           User?                @relation("OrderCreatedBy", fields: [createdById], references: [id])
   updatedBy           User?                @relation("OrderUpdatedBy", fields: [updatedById], references: [id])
   productSKUSnapshots ProductSKUSnapshot[]
+
+  @@index([deletedAt]) 
 }
 
 model Review {
