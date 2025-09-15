@@ -12,7 +12,7 @@ import ms from 'ms';
 import path from 'path';
 import { EmailService } from 'src/shared/services/email.service';
 import { AccessTokenPayloadCreate } from 'src/shared/types/jwt.type';
-import { EmailAlreadyExistesException, EmailNotFoundException, FailToSendOTPException, InvalidOTPException, InvalidTOTPAndCodeException, InvalidTOTPException, OTPExpireException, RefreshTokenAlreadyUseException, TOTPAlreadyEnableException, TOTPNotEnableException, UserNotFoundException } from './error.model';
+import { EmailAlreadyExistesException, EmailNotFoundException, FailToSendOTPException, InvalidOTPException, InvalidTOTPAndCodeException, InvalidTOTPException, OTPExpireException, RefreshTokenAlreadyUseException, TOTPAlreadyEnableException, TOTPNotEnableException, UserNotFoundException } from './auth.error';
 import { TypeOfVerificationCode, TypeOfVerificationCodeType } from 'src/shared/constants/auth.constant';
 import { TwoFactorAuthService } from 'src/shared/services/2fa.service';
 import { email } from 'zod';
