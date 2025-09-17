@@ -382,7 +382,7 @@ CREATE INDEX "UserTranslation_deletedAt_idx" ON "public"."UserTranslation"("dele
 CREATE INDEX "VerificationCode_expiresAt_idx" ON "public"."VerificationCode"("expiresAt");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "VerificationCode_email_code_type_key" ON "public"."VerificationCode"("email", "code", "type");
+CREATE UNIQUE INDEX "VerificationCode_email_type_key" ON "public"."VerificationCode"("email", "code", "type");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "RefreshToken_token_key" ON "public"."RefreshToken"("token");

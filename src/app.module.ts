@@ -3,14 +3,15 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { SharedModule } from 'src/shared/shared.module';
 import { APP_FILTER, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
-import { ZodSerializerInterceptor, ZodValidationPipe } from 'nestjs-zod';
+import { ZodSerializerInterceptor} from 'nestjs-zod';
 import { AuthModule } from './routes/auth/auth.module';
 import MyZodValidationPipe from './shared/pipes/custom-zod-validation.pipe';
 import { HttpExceptionFilter } from './shared/filters/http-exception.filter';
 import { LanguageModule } from './routes/language/language.module';
+import { PermissionModule } from './routes/permission/permission.module';
 
 @Module({
-  imports: [SharedModule, AuthModule, LanguageModule],
+  imports: [SharedModule, AuthModule, LanguageModule, PermissionModule],
   controllers: [AppController],
   providers: [AppService , 
     {

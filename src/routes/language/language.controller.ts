@@ -5,7 +5,7 @@ import { CreateLanguageBodyDTO, GetLanguageDetailDTO, GetLanguageParamsDTO, GetL
 import { ActiveUser } from 'src/shared/decorator/active-user.decorator';
 import { MessageResDTO } from 'src/shared/dtos/response.dto';
 
-@Controller('language')
+@Controller('languages')
 export class LanguageController {
     constructor(private readonly languageService: LanguageService) {}
 
