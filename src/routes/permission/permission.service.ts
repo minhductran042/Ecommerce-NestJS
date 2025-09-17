@@ -3,6 +3,7 @@ import { PermissionRepository } from './permission.repo';
 import { CreatePermissionBodyType, GetPermissionQueryType, GetPermissionsResType } from './permission.model';
 import { isUniqueConstraintPrismaError } from 'src/shared/helper';
 import { PermissionHasAlreadyExistsError } from './permission.error';
+import { NotFoundExceptionRecord } from 'src/shared/models/error.model';
 
 @Injectable()
 export class PermissionService {
@@ -16,6 +17,9 @@ export class PermissionService {
     async findById(permissionId: number) {
         try {
             const permission = await this.permissionRepo.findById(permissionId)
+            if(!permission) {
+                throw NotFoundExceptionRecord
+            }
             return permission
         } catch (error) {
             if(isUniqueConstraintPrismaError(error)) {

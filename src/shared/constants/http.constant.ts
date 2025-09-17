@@ -3,7 +3,7 @@ export const HTTPMethods = {
     POST: 'POST',
     PUT: 'PUT',
     DELETE: 'DELETE',
-    PATH: 'PATH',
+    PATCH: 'PATCH',
     OPTIONS: 'OPTIONS',
     HEAD: 'HEAD'
 } as const
