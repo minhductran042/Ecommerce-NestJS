@@ -1,0 +1,3 @@
+-- This is an empty migration.
+DROP INDEX "permission_path_method_unique";
+CREATE UNIQUE INDEX "permission_path_method_unique" ON "Permission" (path, method) WHERE "deletedAt" IS NULL;
