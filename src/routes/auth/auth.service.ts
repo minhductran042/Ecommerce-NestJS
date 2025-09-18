@@ -73,7 +73,7 @@ export class AuthService {
             const clientRoleId = await this.roleService.getClientRoleId();
             const hashedPassword = await this.hashingService.hash(body.password);
             
-            const user = Promise.all(
+            const [user] = await Promise.all(
             [
                 this.authRepository.createUser({
                 email: body.email,
@@ -86,15 +86,13 @@ export class AuthService {
                     {
                         email_type : {
                             email: body.email,
-                            type: TypeOfVerificationCode.FORGOT_PASSWORD
+                            type: TypeOfVerificationCode.REGISTER
                         }
                     }
                 )
         
             ])
-
-
-
+            return user
         } catch (error) {
            if(isUniqueConstraintPrismaError(error)) {
                 throw EmailAlreadyExistesException

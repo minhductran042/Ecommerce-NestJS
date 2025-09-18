@@ -1,6 +1,7 @@
 import { NestFactory } from "@nestjs/core";
 import path from "path";
 import { AppModule } from "src/app.module";
+import { RoleService } from "src/routes/auth/role.service";
 import { HTTPMethods } from "src/shared/constants/http.constant";
 import { PrismaService } from "src/shared/services/prisma.service";
 
@@ -92,6 +93,7 @@ async function bootstrap() {
   //   data: availableRoutes,
   //   skipDuplicates: true
   // }) 
+
 
   process.exit(0) // dung lai : Ctr+C
 }
