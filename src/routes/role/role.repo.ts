@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { PrismaService } from "src/shared/services/prisma.service";
-import { CreateRoleBodyType, GetRoleQueryType, GetRolesResType, RoleType, UpdateRoleBodyType } from "./role.model";
+import { CreateRoleBodyType, GetRoleQueryType, GetRolesResType, RoleType, RoleWithPermissionsType, UpdateRoleBodyType } from "./role.model";
 import { boolean, set } from "zod";
 import { permission } from "process";
 
@@ -55,7 +55,7 @@ export class RoleRepository {
         }
     }
 
-    findById(roleId: number) : Promise<RoleType | null> {
+    findById(roleId: number) : Promise<RoleWithPermissionsType | null> {
         return this.prismaService.role.findFirst({
             where: {
                 id: roleId
@@ -74,13 +74,15 @@ export class RoleRepository {
         roleId: number,
         data: UpdateRoleBodyType,
         updatedById: number
-    }) {
+    }) : Promise<RoleType> {
         return this.prismaService.role.update({
             where: {
                 id: roleId
             },
             data: {
-                ...data,
+                name: data.name,
+                description: data.description,
+                isActive: data.isActive,
                 updatedById,
                 permissions: {
                     set: data.permissionIds.map(id => ({id})) // set nhan 1 mang object 

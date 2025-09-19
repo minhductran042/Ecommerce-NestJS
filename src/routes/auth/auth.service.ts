@@ -33,7 +33,6 @@ export class AuthService {
     
     async validateVerificationCode({
         email,
-        code,
         type
     } : {
         email:string, 
