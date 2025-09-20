@@ -3,7 +3,9 @@ import path from "path";
 import { AppModule } from "src/app.module";
 import { RoleService } from "src/routes/auth/role.service";
 import { HTTPMethods } from "src/shared/constants/http.constant";
+import { RoleName } from "src/shared/constants/role.constant";
 import { PrismaService } from "src/shared/services/prisma.service";
+import id from "zod/v4/locales/id.js";
 
 const prismaService = new PrismaService()
 
@@ -86,13 +88,33 @@ async function bootstrap() {
     }
 
     
-  // console.log(availableRoutes);
+    const updatedPermissionsInDB = await prismaService.permission.findMany({
+      where: {
+        deletedAt: null
+      }
+    })
 
-  // //Add cac method vao database 
-  // const result = await prismaService.permission.createMany({
-  //   data: availableRoutes,
-  //   skipDuplicates: true
-  // }) 
+    const adminRole = await prismaService.role.findFirstOrThrow({
+      where: {
+        name: RoleName.ADMIN,
+        deletedAt: null
+      }
+    })
+
+    await prismaService.role.update({
+      where: {
+        id: adminRole.id
+      }, 
+      data: {
+        permissions: {
+          set: updatedPermissionsInDB.map(permission => ({
+            id: permission.id // update can mang {id: number}
+          }))
+        }
+      }
+    })
+
+
 
 
   process.exit(0) // dung lai : Ctr+C

@@ -93,11 +93,8 @@ export class RoleRepository {
                     }
                 }
             })
-            console.log(permissions)
 
             const deletePermissions = permissions.filter(permission => permission.deletedAt)
-
-            console.log(deletePermissions)
 
             if(deletePermissions.length > 0) {
                 const deletedIds = deletePermissions.map(permission => permission.id).join(', ')
