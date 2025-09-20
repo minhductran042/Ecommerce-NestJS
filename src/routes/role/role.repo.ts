@@ -39,7 +39,11 @@ export class RoleRepository {
                     skip,
                     take,
                     include: {
-                        permissions: true
+                        permissions: {
+                            where: {
+                                deletedAt: null
+                            }
+                        }
                     }
                 })
         ])
@@ -61,12 +65,16 @@ export class RoleRepository {
                 id: roleId
             },
             include: {
-                permissions: true
+                permissions: {
+                    where: {
+                        deletedAt: null
+                    }
+                }
             }
         })
     }
 
-    update({
+    async update({
         roleId,
         data,
         updatedById
@@ -75,6 +83,29 @@ export class RoleRepository {
         data: UpdateRoleBodyType,
         updatedById: number
     }) : Promise<RoleType> {
+
+        //Xem permission nào đã bị xóa mềm thì check
+        if(data.permissionIds.length > 0) {
+            const permissions = await this.prismaService.permission.findMany({
+                where: {
+                    id: {
+                        in: data.permissionIds
+                    }
+                }
+            })
+            console.log(permissions)
+
+            const deletePermissions = permissions.filter(permission => permission.deletedAt)
+
+            console.log(deletePermissions)
+
+            if(deletePermissions.length > 0) {
+                const deletedIds = deletePermissions.map(permission => permission.id).join(', ')
+                throw new Error(`Permission with ids ${deletedIds} has been deleted`)
+
+            }
+        }
+
         return this.prismaService.role.update({
             where: {
                 id: roleId
@@ -90,7 +121,11 @@ export class RoleRepository {
                 }
             },
             include: {
-                permissions: true
+                permissions: {
+                    where: {
+                        deletedAt: null
+                    }
+                }
             }
         })
     }

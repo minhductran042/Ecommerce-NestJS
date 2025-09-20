@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { LanguageRepository } from './language.repo';
-import { NotFoundExceptionRecord } from 'src/shared/models/error.model';
+import { NotFoundRecordException } from 'src/shared/models/error.model';
 import { CreateLanguageBodyType, GetLanguageParamsType, UpdateLanguageBodyType } from './language.model';
 import { isUniqueConstraintPrismaError } from 'src/shared/helper';
 import { LanguageAlreadyExistsError } from './language.error';
@@ -22,7 +22,7 @@ export class LanguageService {
     async findById(id: string) {
         const language = await this.languageRepository.findById(id)
         if(!language) {
-            throw NotFoundExceptionRecord
+            throw NotFoundRecordException
         }
         return language
     }
@@ -59,7 +59,7 @@ export class LanguageService {
         })
        } catch(error) {
         if(isUniqueConstraintPrismaError(error)) {
-            throw NotFoundExceptionRecord
+            throw NotFoundRecordException
         }
         throw error
        }
@@ -73,7 +73,7 @@ export class LanguageService {
         }
        } catch(error) {
         if(isUniqueConstraintPrismaError(error)) {
-            throw NotFoundExceptionRecord
+            throw NotFoundRecordException
         }
         throw error
        }

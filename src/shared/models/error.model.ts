@@ -1,5 +1,5 @@
 import { NotFoundException } from "@nestjs/common";
 
-export const NotFoundExceptionRecord = new NotFoundException({
+export const NotFoundRecordException = new NotFoundException({
     message: 'Record not found'
 })
