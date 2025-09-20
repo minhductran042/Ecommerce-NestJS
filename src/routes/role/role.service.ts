@@ -2,8 +2,9 @@ import { BadGatewayException, BadRequestException, Injectable, NotFoundException
 import { RoleRepository } from './role.repo';
 import { CreateRoleBodyType, GetRoleQueryType, UpdateRoleBodyType } from './role.model';
 import { isNotFoundPrismaError, isUniqueConstraintPrismaError } from 'src/shared/helper';
-import { RoleHasAlreadyExistsError } from './role.error';
+import { ProhibitActionOnRole, RoleHasAlreadyExistsError } from './role.error';
 import { NotFoundRecordException } from 'src/shared/models/error.model';
+import { RoleName } from 'src/shared/constants/role.constant';
 
 @Injectable()
 export class RoleService {
@@ -56,11 +57,25 @@ export class RoleService {
         updatedById: number
     }) {
         try {
-            return await this.roleRepo.update({
+            const role = await this.roleRepo.findById(roleId)
+            if(!role) {
+                throw NotFoundException
+            }
+
+             //Không được update permission cho Admin ke ca admin
+            const adminRole = RoleName.ADMIN
+            if(adminRole === role.name) {
+                throw ProhibitActionOnRole
+            }
+
+            const updatedRole =  await this.roleRepo.update({
                 roleId,
                 data,
                 updatedById
             })
+
+            return updatedRole
+
         } catch(error) {
             if(isUniqueConstraintPrismaError(error)) {
                 throw RoleHasAlreadyExistsError
@@ -72,15 +87,25 @@ export class RoleService {
                 throw new BadRequestException(error.message)
             }
 
-            
-
             throw error
         }
     }
 
     async delete(roleId: number) {
         try {
-            const role = await this.roleRepo.delete(roleId)
+            const role = await this.roleRepo.findById(roleId)
+
+            if(!role) {
+                throw NotFoundRecordException
+            }
+
+            //Không được xóa 3 role cơ bản này
+            const baseRole : string[] = [RoleName.ADMIN && RoleName.CLIENT && RoleName.SELLER]
+            if(baseRole.includes(role.name)) {
+                throw ProhibitActionOnRole
+            }
+
+            await this.roleRepo.delete(roleId)
             return "Delete Role Successfully"
         } catch(error) {
             if(isUniqueConstraintPrismaError(error)) {

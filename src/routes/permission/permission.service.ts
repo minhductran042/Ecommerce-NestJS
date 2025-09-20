@@ -48,6 +48,12 @@ export class PermissionService {
 
     async update({permissionId, data, updatedById} : {permissionId: number, data: CreatePermissionBodyType, updatedById: number}) {
         try {
+
+            const permission = await this.permissionRepo.findById(permissionId)
+            if(!permission) {
+                throw NotFoundRecordException
+            }
+            
             return await this.permissionRepo.update({
                 permissionId,
                 data,
@@ -63,6 +69,12 @@ export class PermissionService {
 
     async delete(permissionId: number) {
         try {
+
+            const permission = await this.permissionRepo.findById(permissionId)
+            if(!permission) {
+                throw NotFoundRecordException
+            }
+
             await this.permissionRepo.delete(permissionId)
             return {
                 message: 'Delete permission successfully'

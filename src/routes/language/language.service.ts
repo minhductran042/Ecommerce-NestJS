@@ -52,6 +52,11 @@ export class LanguageService {
         data: UpdateLanguageBodyType
     }) {
        try {
+
+        const language = this.languageRepository.findById(languageId)
+        if(!language) {
+            throw NotFoundRecordException
+        }
         return this.languageRepository.update({
             languageId,
             updatedById,
@@ -67,7 +72,12 @@ export class LanguageService {
 
     async delete(id: string) {
        try {
-         await this.languageRepository.delete(id, true)
+
+        const language = this.languageRepository.findById(id)
+        if(!language) {
+            throw NotFoundRecordException
+        }
+        await this.languageRepository.delete(id, true)
         return {
             message: 'Delete language successfully'
         }
