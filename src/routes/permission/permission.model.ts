@@ -15,6 +15,7 @@ export const PermissionSchema = z.object({
         HTTPMethod.HEAD,
         HTTPMethod.OPTIONS
     ]),
+    module: z.string().max(500),
     createdById: z.number().nullable(),
     updatedById: z.number().nullable(),
     deletedAt: z.date().nullable(),
@@ -44,7 +45,8 @@ export const GetPermissionParamsSchema = z.object({
 export const CreatePermissionBodyShema = PermissionSchema.pick({
     name: true, 
     path: true,
-    method: true
+    method: true,
+    module: true
 }).strict()
 
 export const UpdatePermissionBodySchema = CreatePermissionBodyShema

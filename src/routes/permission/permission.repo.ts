@@ -1,7 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { PrismaService } from "src/shared/services/prisma.service";
 import { CreatePermissionBodyType, GetPermissionDetailType, GetPermissionQueryType, GetPermissionsResType, PermissionType, UpdatePermissionBodyType } from "./permission.model";
-import { NumberSchema } from "node_modules/zod/v4/core/json-schema.cjs";
 
 @Injectable()
 export class PermissionRepository {

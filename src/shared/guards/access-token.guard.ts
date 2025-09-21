@@ -55,7 +55,8 @@ export class AccessTokenGuard implements CanActivate {
         const role = await this.prismaService.role.findUniqueOrThrow({
             where: {
                 id: roleId,
-                deletedAt: null
+                deletedAt: null,
+                isActive: true
             },
             include: {
                 permissions: {

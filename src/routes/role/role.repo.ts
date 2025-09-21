@@ -62,7 +62,8 @@ export class RoleRepository {
     findById(roleId: number) : Promise<RoleWithPermissionsType | null> {
         return this.prismaService.role.findFirst({
             where: {
-                id: roleId
+                id: roleId,
+                deletedAt: null
             },
             include: {
                 permissions: {

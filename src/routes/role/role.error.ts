@@ -5,6 +5,7 @@ export const RoleHasAlreadyExistsError = new UnprocessableEntityException({
     path: 'name'    
 })
 
-export const ProhibitActionOnRole = new ForbiddenException({
-    message: 'ERROR.PROHIBIT_ACTION_ON_ROLE'
+
+export const ProhibitedActionOnBaseRoleException = new ForbiddenException({
+    message: 'ERROR.PROHIBITED_ACTION_ON_BASE_ROLE'
 })

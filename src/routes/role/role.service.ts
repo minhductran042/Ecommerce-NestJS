@@ -2,7 +2,7 @@ import { BadGatewayException, BadRequestException, Injectable, NotFoundException
 import { RoleRepository } from './role.repo';
 import { CreateRoleBodyType, GetRoleQueryType, UpdateRoleBodyType } from './role.model';
 import { isNotFoundPrismaError, isUniqueConstraintPrismaError } from 'src/shared/helper';
-import { ProhibitActionOnRole, RoleHasAlreadyExistsError } from './role.error';
+import { RoleHasAlreadyExistsError, ProhibitedActionOnBaseRoleException } from './role.error';
 import { NotFoundRecordException } from 'src/shared/models/error.model';
 import { RoleName } from 'src/shared/constants/role.constant';
 
@@ -57,16 +57,8 @@ export class RoleService {
         updatedById: number
     }) {
         try {
-            const role = await this.roleRepo.findById(roleId)
-            if(!role) {
-                throw NotFoundException
-            }
-
-             //Không được update permission cho Admin ke ca admin
-            const adminRole = RoleName.ADMIN
-            if(adminRole === role.name) {
-                throw ProhibitActionOnRole
-            }
+            // Kiểm tra base role trước khi update
+            await this.verifyRole(roleId)
 
             const updatedRole =  await this.roleRepo.update({
                 roleId,
@@ -93,17 +85,8 @@ export class RoleService {
 
     async delete(roleId: number) {
         try {
-            const role = await this.roleRepo.findById(roleId)
-
-            if(!role) {
-                throw NotFoundRecordException
-            }
-
-            //Không được xóa 3 role cơ bản này
-            const baseRole : string[] = [RoleName.ADMIN && RoleName.CLIENT && RoleName.SELLER]
-            if(baseRole.includes(role.name)) {
-                throw ProhibitActionOnRole
-            }
+            // Kiểm tra base role trước khi delete
+            await this.verifyRole(roleId)
 
             await this.roleRepo.delete(roleId)
             return "Delete Role Successfully"
@@ -112,6 +95,18 @@ export class RoleService {
                 throw RoleHasAlreadyExistsError
             }
             throw error
+        }
+    }
+
+    private async verifyRole(roleId: number) {
+        const role = await this.roleRepo.findById(roleId)
+        if (!role) {
+            throw NotFoundRecordException
+        }
+        const baseRoles: string[] = [RoleName.ADMIN, RoleName.CLIENT, RoleName.SELLER]
+
+        if (baseRoles.includes(role.name)) {
+            throw ProhibitedActionOnBaseRoleException
         }
     }
     
