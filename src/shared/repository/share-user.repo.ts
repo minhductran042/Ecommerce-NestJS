@@ -5,7 +5,7 @@ import { RoleType } from "../models/shared-role.model";
 import { PermissionType } from "../models/shared-permission.model";
 
 
-type WhereUniqueUserType = {id: number, [key: string] : any} | {email: string, [key: string] : any} 
+export type WhereUniqueUserType = {id: number, [key: string] : any} | {email: string, [key: string] : any} 
 // key: string là các trường khác của user
 
 type UserIncludePermissionsType = UserType & {role: RoleType & {permissions: PermissionType[]}} 
@@ -38,6 +38,7 @@ export class ShareUserRepository {
         })
     }
 
+    
     update(where: WhereUniqueUserType , data: Partial<UserType>) : Promise<UserType | null> { 
         // Partial là biến tất cả các field thành optional
         return this.prismaService.user.update({

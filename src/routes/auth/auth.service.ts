@@ -16,6 +16,7 @@ import { EmailAlreadyExistesException, EmailNotFoundException, FailToSendOTPExce
 import { TypeOfVerificationCode, TypeOfVerificationCodeType } from 'src/shared/constants/auth.constant';
 import { TwoFactorAuthService } from 'src/shared/services/2fa.service';
 import { email } from 'zod';
+import { InvalidPasswordException } from 'src/shared/error';
 
 @Injectable()
 export class AuthService {
@@ -102,7 +103,9 @@ export class AuthService {
 
     async sendOTP(body: SendOTPBodyType) {
 
-        const user = await this.authRepository.findUniqueUserIncludeRole({ email: body.email });
+        const user = await this.authRepository.findUniqueUserIncludeRole({ email: body.email , detededAt: null 
+            
+        });
         if(body.type === TypeOfVerificationCode.REGISTER && user) {
             throw EmailAlreadyExistesException
         }
@@ -138,7 +141,8 @@ export class AuthService {
     async login(body: LoginBodyType & {userAgent: string, ip: string}) {
         //1. Lấy thông tin user, check tồn tại, xem mk đúng k
         const user = await this.authRepository.findUniqueUserIncludeRole({
-            email: body.email
+            email: body.email,
+            deletedAt: null
         })
         if(!user) {
             throw UserNotFoundException
@@ -146,12 +150,7 @@ export class AuthService {
 
         const isPasswordMatch = await this.hashingService.compare(body.password, user.password)
         if(!isPasswordMatch) {
-            throw new UnprocessableEntityException([
-                {
-                    field: 'password',
-                    error: 'Incorrect password'
-                }
-            ])
+            throw InvalidPasswordException
         }
 
         //2. Nếu đã bật mã 2fa, kiểm tra mã 2fa totp code hoặc otp code(gmail)
@@ -317,7 +316,8 @@ export class AuthService {
 
         //1. Kiểm tra email có trong database không
         const user = await this.shareUserRepository.findUnique({
-            email: email
+            email: email,
+            deletedAt: null
         })
         if(!user) {
             throw EmailNotFoundException
@@ -335,9 +335,10 @@ export class AuthService {
         const hashedPassword = await this.hashingService.hash(newPassword)
         await Promise.all(
             [
-                this.authRepository.updateUser(
-                    { id: user.id} , 
-                    { password : hashedPassword}
+                this.shareUserRepository.update(
+                    { id: user.id, deletedAt: null} , 
+                    { password : hashedPassword, updatedById: user.id},
+                    
                 )
                 ,
                 this.authRepository.deleteVerificationCode(
@@ -362,7 +363,8 @@ export class AuthService {
         //1. Kiểm tra user có tồn tại hay không, có bật xác thực 2FA không
         const user = await this.shareUserRepository.findUnique(
             {
-                id: userId
+                id: userId,
+                deletedAt: null
             }
         )
 
@@ -378,10 +380,12 @@ export class AuthService {
         const {secret, uri} = this.twoFactorAuthenticationService.generateTOTPSecret(user.email);
 
         //3. Cập nhật secret vào user trong db
-        await this.authRepository.updateUser({
-            id: userId
+        await this.shareUserRepository.update({
+            id: userId,
+            deletedAt: null
         }, {
-            totpSecret: secret
+            totpSecret: secret,
+            updatedById: userId
         })
 
         //4. Trả về secret và url cho client
@@ -396,7 +400,8 @@ export class AuthService {
         //1. Kiểm tra user có tồn tại hay không, có bật xác thực 2FA không
         const user = await this.shareUserRepository.findUnique(
             {
-                id: userId
+                id: userId,
+                deletedAt: null
             }
         )
         if(!user) {
@@ -430,11 +435,13 @@ export class AuthService {
             }
         }
 
-        //3. Xóa secret trong db
-        await this.authRepository.updateUser({
-            id: userId
+        //3. Cap nhat secret thanh null
+        await this.shareUserRepository.update({
+            id: userId,
+            deletedAt: null
         }, {
-            totpSecret: null
+            totpSecret: null,
+            updatedById: userId
         })
 
         return {

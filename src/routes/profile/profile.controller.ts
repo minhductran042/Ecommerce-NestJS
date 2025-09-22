@@ -20,7 +20,6 @@ export class ProfileController {
     @Put()
     @ZodSerializerDto(UpdateProfileResDTO)
     updateProfile(@ActiveUser('userId') userId: number, @Body() body: UpdateMeBodyDTO) {
-        console.log("chay vao day")
         return this.profileService.updateProfile({
             userId,
             data: body

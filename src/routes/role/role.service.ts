@@ -75,10 +75,6 @@ export class RoleService {
             if(isNotFoundPrismaError(error)) {
                 throw NotFoundRecordException
             }
-            if(error instanceof Error) {
-                throw new BadRequestException(error.message)
-            }
-
             throw error
         }
     }

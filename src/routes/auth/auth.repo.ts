@@ -4,10 +4,13 @@ import { DeviceType, RefreshTokenType, RegisterBodyType, RoleType, VerificationC
 import { UserType } from "src/shared/models/share-user.model";
 import { TypeOfVerificationCodeType } from "src/shared/constants/auth.constant";
 import { Role, User } from "@prisma/client";
+import { WhereUniqueUserType } from "src/shared/repository/share-user.repo";
 
 @Injectable()
 export class AuthRepository {
     constructor(private readonly prismaService: PrismaService) {}
+
+
 
     createUser(user: Pick<UserType, 'email' | 'name'| 'phoneNumber' | 'roleId' | 'password'>) : 
     Promise<Omit<UserType, 'password' | 'totpSecret'>> { // Promise là kiểu trả về với password và toptSecret bị loại bỏ
@@ -80,10 +83,10 @@ export class AuthRepository {
     }
     
 
-    async findUniqueUserIncludeRole(uniqueObject: {email: string} | {id: number}) : 
+    async findUniqueUserIncludeRole(where: WhereUniqueUserType) : 
     Promise<UserType & {role: RoleType} | null> {
         return this.prismaService.user.findUnique({
-            where: uniqueObject,
+            where: where,
             include: {
                 role: true
             }
@@ -121,15 +124,7 @@ export class AuthRepository {
             where: uniqueObject
         })
     }
-
-
-    updateUser(uniqueObject: {id : number} | {email: string} , data: Partial<Omit<UserType, 'id'>>) : Promise<UserType> {
-        return this.prismaService.user.update({
-            where: uniqueObject,
-            data
-        })
-    }
-
+ 
 
     deleteVerificationCode(uniqueObject: 
         {id: number} 
