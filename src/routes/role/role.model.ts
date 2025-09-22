@@ -1,20 +1,7 @@
 
-import { permission } from 'process'
 import { z } from 'zod'
 import { PermissionSchema } from '../permission/permission.model'
-import { datacatalog_v1beta1 } from 'googleapis'
-
-export const RoleShema = z.object({
-    id: z.number(),
-    name: z.string().max(500),
-    description: z.string(),
-    isActive: z.boolean().default(true),
-    createdById: z.number().nullable(),
-    updatedById: z.number().nullable(),
-    createdAt: z.date(),
-    updatedAt: z.date(),
-    deletedAt: z.date().nullable()
-})
+import { RoleShema } from 'src/shared/models/shared-role.model'
 
 export const RoleWithPermissionsSchema = RoleShema.extend({
     permissions: z.array(PermissionSchema)
@@ -54,7 +41,6 @@ export const UpdateRoleBodyShema = RoleShema.pick({
     permissionIds: z.array(z.number()) 
 }).strict()
 
-export type RoleType = z.infer<typeof RoleShema>
 export type RoleWithPermissionsType = z.infer<typeof RoleWithPermissionsSchema>
 export type GetRoleDetailType = z.infer<typeof GetRoleDetailSchema>
 export type CreateRoleBodyType = z.infer<typeof CreateRoleBodySchema>

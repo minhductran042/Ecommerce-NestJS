@@ -2,7 +2,6 @@ import { ConflictException, HttpException, Injectable, UnauthorizedException, Un
 import { HashingService } from '../../shared/services/hashing.service';
 import { TokenService } from 'src/shared/services/token.service';
 import { generateOTP, isNotFoundPrismaError, isUniqueConstraintPrismaError } from 'src/shared/helper';
-import { RoleService } from './role.service';
 import { DisableTwoFactorBodyType, ForgotPasswordType, LoginBodyType, logoutBodyType, RefreshTokenBodyType, RegisterBodyType, SendOTPBodyType } from './auth.model';
 import { AuthRepository } from './auth.repo';
 import { ShareUserRepository } from 'src/shared/repository/share-user.repo';
@@ -17,13 +16,14 @@ import { TypeOfVerificationCode, TypeOfVerificationCodeType } from 'src/shared/c
 import { TwoFactorAuthService } from 'src/shared/services/2fa.service';
 import { email } from 'zod';
 import { InvalidPasswordException } from 'src/shared/error';
+import { ShareRoleRepository } from 'src/shared/repository/share-role.repo';
 
 @Injectable()
 export class AuthService {
     constructor(
         private readonly hashingService: HashingService,
         private readonly tokenService: TokenService,
-        private readonly roleService: RoleService,
+        private readonly roleService: ShareRoleRepository,
         private readonly authRepository: AuthRepository,
         private readonly shareUserRepository: ShareUserRepository,
         private readonly emailService: EmailService,
@@ -103,9 +103,7 @@ export class AuthService {
 
     async sendOTP(body: SendOTPBodyType) {
 
-        const user = await this.authRepository.findUniqueUserIncludeRole({ email: body.email , detededAt: null 
-            
-        });
+        const user = await this.authRepository.findUniqueUserIncludeRole({ email: body.email , deletedAt: null });
         if(body.type === TypeOfVerificationCode.REGISTER && user) {
             throw EmailAlreadyExistesException
         }

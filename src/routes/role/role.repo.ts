@@ -1,8 +1,9 @@
 import { Injectable } from "@nestjs/common";
 import { PrismaService } from "src/shared/services/prisma.service";
-import { CreateRoleBodyType, GetRoleQueryType, GetRolesResType, RoleType, RoleWithPermissionsType, UpdateRoleBodyType } from "./role.model";
+import { CreateRoleBodyType, GetRoleQueryType, GetRolesResType, RoleWithPermissionsType, UpdateRoleBodyType } from "./role.model";
 import { boolean, set } from "zod";
 import { permission } from "process";
+import { RoleType } from "src/shared/models/shared-role.model";
 
 @Injectable()
 export class RoleRepository {

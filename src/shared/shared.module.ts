@@ -10,6 +10,7 @@ import { AuthenticationGuard } from './guards/authentication.guard';
 import { ShareUserRepository } from './repository/share-user.repo';
 import { EmailService } from './services/email.service';
 import { TwoFactorAuthService } from './services/2fa.service';
+import { ShareRoleRepository } from './repository/share-role.repo';
 
 const sharedServices = [
     PrismaService, 
@@ -17,7 +18,8 @@ const sharedServices = [
     TokenService, 
     ShareUserRepository, 
     EmailService, 
-    TwoFactorAuthService
+    TwoFactorAuthService,
+    ShareRoleRepository
 ];
 
 @Global()

@@ -6,10 +6,10 @@ import { GoogleAuthStateType } from "./auth.model";
 import { error } from "console";
 import { AuthRepository } from "./auth.repo";
 import { HashingService } from "src/shared/services/hashing.service";
-import { RoleService } from "./role.service";
 import { v4 as uuidv4 } from 'uuid';
 import { AuthService } from "./auth.service";
 import { GoogleUserInfoError } from "./auth.error";
+import { ShareRoleRepository } from "src/shared/repository/share-role.repo";
 
 
 @Injectable()
@@ -20,7 +20,7 @@ export class GoogleService {
     constructor(
         private readonly authRepository : AuthRepository,
         private readonly hashingService: HashingService,
-        private readonly roleService: RoleService,
+        private readonly roleService: ShareRoleRepository,
         private readonly authService: AuthService
     ) {
         this.oauth2Client = new google.auth.OAuth2(
