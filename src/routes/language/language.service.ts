@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { LanguageRepository } from './language.repo';
-import { NotFoundRecordException } from 'src/shared/models/error.model';
+import { NotFoundRecordException } from 'src/shared/error';
 import { CreateLanguageBodyType, GetLanguageParamsType, UpdateLanguageBodyType } from './language.model';
 import { isUniqueConstraintPrismaError } from 'src/shared/helper';
 import { LanguageAlreadyExistsError } from './language.error';

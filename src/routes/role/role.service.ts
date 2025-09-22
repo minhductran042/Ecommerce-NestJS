@@ -3,7 +3,7 @@ import { RoleRepository } from './role.repo';
 import { CreateRoleBodyType, GetRoleQueryType, UpdateRoleBodyType } from './role.model';
 import { isNotFoundPrismaError, isUniqueConstraintPrismaError } from 'src/shared/helper';
 import { RoleHasAlreadyExistsError, ProhibitedActionOnBaseRoleException } from './role.error';
-import { NotFoundRecordException } from 'src/shared/models/error.model';
+import { NotFoundRecordException } from 'src/shared/error';
 import { RoleName } from 'src/shared/constants/role.constant';
 
 @Injectable()

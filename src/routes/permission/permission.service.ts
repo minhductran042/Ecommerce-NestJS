@@ -3,7 +3,7 @@ import { PermissionRepository } from './permission.repo';
 import { CreatePermissionBodyType, GetPermissionQueryType, GetPermissionsResType } from './permission.model';
 import { isUniqueConstraintPrismaError } from 'src/shared/helper';
 import { PermissionHasAlreadyExistsError } from './permission.error';
-import { NotFoundRecordException } from 'src/shared/models/error.model';
+import { NotFoundRecordException } from 'src/shared/error';
 
 @Injectable()
 export class PermissionService {

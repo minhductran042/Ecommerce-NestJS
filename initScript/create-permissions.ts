@@ -2,7 +2,7 @@ import { NestFactory } from "@nestjs/core";
 import path from "path";
 import { AppModule } from "src/app.module";
 import { RoleService } from "src/routes/auth/role.service";
-import { HTTPMethods } from "src/shared/constants/http.constant";
+import { HTTPMethod } from "src/shared/constants/http.constant";
 import { RoleName } from "src/shared/constants/role.constant";
 import { PrismaService } from "src/shared/services/prisma.service";
 import id from "zod/v4/locales/id.js";
@@ -20,11 +20,11 @@ async function bootstrap() {
     }
   })
 
-  const availableRoutes: {path: string, method: keyof typeof HTTPMethods, name: string, module : string}[] = router.stack
+  const availableRoutes: {path: string, method: keyof typeof HTTPMethod, name: string, module : string}[] = router.stack
     .map(layer => {
       if (layer.route) {
         const path = layer.route?.path
-        const method = String(layer.route?.stack[0].method).toUpperCase() as keyof typeof HTTPMethods
+        const method = String(layer.route?.stack[0].method).toUpperCase() as keyof typeof HTTPMethod
         const moduleName = path.split('/')[1].toUpperCase()
         return {
           path,

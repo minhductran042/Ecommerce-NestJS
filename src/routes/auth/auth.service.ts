@@ -316,7 +316,7 @@ export class AuthService {
         const {email, code , newPassword } = body
 
         //1. Kiểm tra email có trong database không
-        const user = await this.shareUserRepository.findUniqueObject({
+        const user = await this.shareUserRepository.findUnique({
             email: email
         })
         if(!user) {
@@ -360,7 +360,7 @@ export class AuthService {
     
     async setupTwoFactorAuthentication(userId : number) {
         //1. Kiểm tra user có tồn tại hay không, có bật xác thực 2FA không
-        const user = await this.shareUserRepository.findUniqueObject(
+        const user = await this.shareUserRepository.findUnique(
             {
                 id: userId
             }
@@ -394,7 +394,7 @@ export class AuthService {
     async disableTwoFactorAuthentication(data : DisableTwoFactorBodyType & {userId: number}) {
         const {userId, code , totpCode } = data
         //1. Kiểm tra user có tồn tại hay không, có bật xác thực 2FA không
-        const user = await this.shareUserRepository.findUniqueObject(
+        const user = await this.shareUserRepository.findUnique(
             {
                 id: userId
             }
