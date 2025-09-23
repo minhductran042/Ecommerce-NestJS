@@ -15,7 +15,7 @@ export class ShareRoleRepository {
         const [role] = await this.prismaService.$queryRaw<Array<RoleType>>(Prisma.sql`
             SELECT *
             FROM "Role"
-            WHERE "name" = ${RoleName.CLIENT} AND "deletedAt" IS NULL
+            WHERE "name" = ${roleName} AND "deletedAt" IS NULL
             LIMIT 1
         `)
 
