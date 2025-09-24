@@ -28,12 +28,12 @@ model Language {
 
 model User {
   id                          Int                   @id @default(autoincrement())
-  email                       String                @unique
+  email                       String                
   name                        String                @db.VarChar(500)
   password                    String                @db.VarChar(100)
   phoneNumber                 String                @db.VarChar(15)
   avatar                      String?               @db.VarChar(1000)
-  totpSecret                  String?
+  totpSecret                  String?               @db.VarChar(1000)
   status                      UserStatus            @default(ACTIVE)
   roleId                      Int
   createdById                 Int?

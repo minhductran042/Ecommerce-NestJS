@@ -25,8 +25,7 @@ export class UserService {
 
     async findById(userId: number) {
         const user = await this.shareUserRepository.findUniqueIncludeRolePermissions({
-            id: userId,
-            deletedAt: null
+            id: userId
         })
 
         if(!user) {
@@ -94,8 +93,7 @@ export class UserService {
 
             const hashPassword = await this.hashingService.hash(data.password)
             const user = await this.shareUserRepository.update({
-                id: userId,
-                deletedAt: null
+                id: userId
             }, {
                 ...data,
                 password: hashPassword,
@@ -120,8 +118,7 @@ export class UserService {
 
     private async getRoleIdByUserId(userId: number) {
         const currentUser = await this.shareUserRepository.findUnique({
-            id: userId,
-            deletedAt: null
+            id: userId
         })
 
         if(!currentUser) {

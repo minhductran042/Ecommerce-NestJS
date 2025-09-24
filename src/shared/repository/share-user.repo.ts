@@ -5,7 +5,7 @@ import { RoleType } from "../models/shared-role.model";
 import { PermissionType } from "../models/shared-permission.model";
 
 
-export type WhereUniqueUserType = {id: number, [key: string] : any} | {email: string, [key: string] : any} 
+export type WhereUniqueUserType = {id: number} | {email: string} 
 // key: string là các trường khác của user
 
 type UserIncludePermissionsType = UserType & {role: RoleType & {permissions: PermissionType[]}} 
@@ -15,14 +15,17 @@ export class ShareUserRepository {
     constructor(private readonly prismaService: PrismaService) {}
     
     findUnique(where: WhereUniqueUserType) : Promise<UserType | null> {
-        return this.prismaService.user.findUnique({
-            where: where
+        return this.prismaService.user.findFirst({
+            where: {
+                ...where,
+                deletedAt: null
+            }
         })
     }
 
 
     findUniqueIncludeRolePermissions(where: WhereUniqueUserType) : Promise<UserIncludePermissionsType | null> {
-        return this.prismaService.user.findUnique({
+        return this.prismaService.user.findFirst({
             where,
             include: {
                 role: {
@@ -39,10 +42,13 @@ export class ShareUserRepository {
     }
 
     
-    update(where: WhereUniqueUserType , data: Partial<UserType>) : Promise<UserType | null> { 
+    update(where: {id: number} , data: Partial<UserType>) : Promise<UserType | null> { 
         // Partial là biến tất cả các field thành optional
         return this.prismaService.user.update({
-            where,
+            where: {
+                ...where,
+                deletedAt: null
+            },
             data
         })
 

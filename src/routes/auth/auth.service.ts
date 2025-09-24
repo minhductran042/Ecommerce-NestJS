@@ -103,7 +103,7 @@ export class AuthService {
 
     async sendOTP(body: SendOTPBodyType) {
 
-        const user = await this.authRepository.findUniqueUserIncludeRole({ email: body.email , deletedAt: null });
+        const user = await this.authRepository.findUniqueUserIncludeRole({ email: body.email});
         if(body.type === TypeOfVerificationCode.REGISTER && user) {
             throw EmailAlreadyExistesException
         }
@@ -139,8 +139,7 @@ export class AuthService {
     async login(body: LoginBodyType & {userAgent: string, ip: string}) {
         //1. Lấy thông tin user, check tồn tại, xem mk đúng k
         const user = await this.authRepository.findUniqueUserIncludeRole({
-            email: body.email,
-            deletedAt: null
+            email: body.email
         })
         if(!user) {
             throw UserNotFoundException
@@ -314,8 +313,7 @@ export class AuthService {
 
         //1. Kiểm tra email có trong database không
         const user = await this.shareUserRepository.findUnique({
-            email: email,
-            deletedAt: null
+            email: email
         })
         if(!user) {
             throw EmailNotFoundException
@@ -334,7 +332,7 @@ export class AuthService {
         await Promise.all(
             [
                 this.shareUserRepository.update(
-                    { id: user.id, deletedAt: null} , 
+                    { id: user.id } , 
                     { password : hashedPassword, updatedById: user.id},
                     
                 )
@@ -361,8 +359,7 @@ export class AuthService {
         //1. Kiểm tra user có tồn tại hay không, có bật xác thực 2FA không
         const user = await this.shareUserRepository.findUnique(
             {
-                id: userId,
-                deletedAt: null
+                id: userId
             }
         )
 
@@ -379,8 +376,7 @@ export class AuthService {
 
         //3. Cập nhật secret vào user trong db
         await this.shareUserRepository.update({
-            id: userId,
-            deletedAt: null
+            id: userId
         }, {
             totpSecret: secret,
             updatedById: userId
@@ -398,8 +394,7 @@ export class AuthService {
         //1. Kiểm tra user có tồn tại hay không, có bật xác thực 2FA không
         const user = await this.shareUserRepository.findUnique(
             {
-                id: userId,
-                deletedAt: null
+                id: userId
             }
         )
         if(!user) {
@@ -435,8 +430,7 @@ export class AuthService {
 
         //3. Cap nhat secret thanh null
         await this.shareUserRepository.update({
-            id: userId,
-            deletedAt: null
+            id: userId
         }, {
             totpSecret: null,
             updatedById: userId
