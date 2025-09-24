@@ -1,7 +1,7 @@
 import { Injectable, CanActivate, ExecutionContext, UnauthorizedException, ForbiddenException } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { TokenService } from '../services/token.service';
-import { REQUEST_USER_KEY } from '../constants/auth.constant';
+import { REQUEST_ROLE_PERMISSIONS, REQUEST_USER_KEY } from '../constants/auth.constant';
 import { TokenExpiredError, JsonWebTokenError } from 'jsonwebtoken';
 import { request } from 'http';
 import { access } from 'fs';
@@ -77,6 +77,7 @@ export class AccessTokenGuard implements CanActivate {
         if(!isAccess) {
             throw new ForbiddenException()
         } 
+        request[REQUEST_ROLE_PERMISSIONS] = role
     }
 }
 

@@ -13,5 +13,9 @@ export const RoleShema = z.object({
     deletedAt: z.date().nullable()
 })
 
+export const RoleWithPermissionsSchema = RoleShema.extend({
+    permissions: z.array(PermissionSchema)
+})
 
 export type RoleType = z.infer<typeof RoleShema>
+export type RoleWithPermissionsType = z.infer<typeof RoleWithPermissionsSchema>

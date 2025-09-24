@@ -10,15 +10,8 @@ import { RoleName } from 'src/shared/constants/role.constant';
 export class RoleService {
     constructor(private readonly roleRepo: RoleRepository) {}
 
-    async list(pagination: GetRoleQueryType) {
-        try {
-            return await this.roleRepo.list(pagination)
-        } catch (error) {
-            if(isUniqueConstraintPrismaError(error)) {
-                throw RoleHasAlreadyExistsError
-            }
-            throw error
-        }
+    list(pagination: GetRoleQueryType) {
+        return this.roleRepo.list(pagination)
     }
 
     async getById(roleId: number) {
