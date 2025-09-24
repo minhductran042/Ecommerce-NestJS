@@ -86,20 +86,10 @@ export class UserService {
                 throw CannotUpdateOrDeleteYourselfException
             }
 
-            const currentUser = await this.shareUserRepository.findUnique({
-                id: userId,
-                deletedAt: null
-            })
-
-            if(!currentUser) {
-                throw NotFoundRecordException
-            }
-
-            const roleIdTartGet = currentUser.roleId
-            //
+            const roleIdTarget = await this.getRoleIdByUserId(userId)
             await this.verifyRole({
                 roleNameAgent: updatedByRoleName,
-                roleIdTarget: roleIdTartGet
+                roleIdTarget: roleIdTarget
             })
 
             const hashPassword = await this.hashingService.hash(data.password)
@@ -128,23 +118,25 @@ export class UserService {
         }
     }
 
+    private async getRoleIdByUserId(userId: number) {
+        const currentUser = await this.shareUserRepository.findUnique({
+            id: userId,
+            deletedAt: null
+        })
+
+        if(!currentUser) {
+            throw NotFoundRecordException
+        }
+        return currentUser.roleId
+    }
+
     async delete(userId: number, deletedByRoleName: string) {
         try {
 
-            const user = await this.shareUserRepository.findUnique({
-                id: userId,
-                deletedAt: null
-            })
-
-            if(!user) {
-                throw NotFoundRecordException
-            }
-
-
-
+            const roleId = await this.getRoleIdByUserId(userId)
             await this.verifyRole({
                 roleNameAgent: deletedByRoleName,
-                roleIdTarget: user.id
+                roleIdTarget: roleId
             })
 
             await this.userRepository.delete(userId)

@@ -58,7 +58,7 @@ export class UserController {
         })
     }
 
-    @Delete()
+    @Delete(':userId')
     @ZodSerializerDto(MessageResDTO)
     delete(@Param() param: GetUserParamsDTO, 
         @ActiveRolePermissions('name') deletedByRoleName: string
