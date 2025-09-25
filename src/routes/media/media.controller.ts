@@ -5,9 +5,14 @@ import path from 'path';
 import envConfig from 'src/shared/config';
 import { UPLOAD_DIR } from 'src/shared/constants/other.const';
 import { IsPublic } from 'src/shared/decorator/isPublic.decorator';
+import { S3Service } from 'src/shared/services/s3.service';
+import { MediaService } from './media.service';
+import { ParseFilePipeWithUnlink } from './parse-file-pipe-with-unlink.pipe';
 
 @Controller('media')
 export class MediaController {
+
+    constructor(private readonly mediaService: MediaService) {}
     
     @Post('/images/upload')
     @UseInterceptors(
@@ -16,16 +21,22 @@ export class MediaController {
         fileSize: 5 * 1024 * 1024, // 2MB
       }
     }))
-        uploadFile(@UploadedFiles( new ParseFilePipe({
-      validators: [
-        new MaxFileSizeValidator({ maxSize: 2 * 1024 * 1024  }), // 2MB
-      ]
-    })) files: Array<Express.Multer.File>) {
+    async uploadFile(@UploadedFiles( 
+      new ParseFilePipeWithUnlink({
+        validators: [
+          new MaxFileSizeValidator({ maxSize: 128  }), // 2MB
+        ]
+      })
+    ) files: Array<Express.Multer.File>) {
+
+      return this.mediaService.uploadFile(files)
         
+
+      
       // console.log(files);
-      return files.map(file => ({
-         url: `${envConfig.PREFIX_STATIC_ENDPOINT}/${file.filename}`
-      }))
+      // return files.map(file => ({
+      //    url: `${envConfig.PREFIX_STATIC_ENDPOINT}/${file.filename}`
+      // }))
 
     }
 

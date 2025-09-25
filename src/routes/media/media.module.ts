@@ -6,6 +6,7 @@ import path from 'path';
 import { generateRandomFileName } from 'src/shared/helper';
 import { existsSync, mkdirSync } from 'fs';
 import { UPLOAD_DIR } from 'src/shared/constants/other.const';
+import { MediaService } from './media.service';
 
 
 const storage = multer.diskStorage({
@@ -22,6 +23,7 @@ const storage = multer.diskStorage({
 
 @Module({
   controllers: [MediaController],
+  providers: [MediaService],
   imports: [
     MulterModule.register({
       storage
