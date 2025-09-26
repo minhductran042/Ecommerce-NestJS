@@ -1,4 +1,4 @@
-import { BadRequestException, Controller, FileTypeValidator, Get, MaxFileSizeValidator, NotFoundException, Param, ParseFilePipe, Post, Res, UploadedFile, UploadedFiles, UseInterceptors } from '@nestjs/common';
+import { BadRequestException, Body, Controller, FileTypeValidator, Get, MaxFileSizeValidator, NotFoundException, Param, ParseFilePipe, Post, Res, UploadedFile, UploadedFiles, UseInterceptors } from '@nestjs/common';
 import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import express from 'express';
 import path from 'path';
@@ -52,5 +52,12 @@ export class MediaController {
           code: notfound.getStatus()
         })
       })
+    }
+
+
+    @Post('images/upload/presign-url')
+    @IsPublic()
+    async createPresignUrl(@Body() body: {fileName: string}) {
+      return this.mediaService.getPresignUrl(body)
     }
 }

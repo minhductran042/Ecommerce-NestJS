@@ -1,9 +1,10 @@
-import { S3, S3Client } from "@aws-sdk/client-s3";
+import { GetObjectCommand, PutObjectCommand, S3, S3Client } from "@aws-sdk/client-s3";
 import { Injectable } from "@nestjs/common";
 import envConfig from "../config";
 import { Upload } from "@aws-sdk/lib-storage";
-import { file } from "zod";
 import { readFileSync } from "fs";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import mime from "mime-types";
 
 
 @Injectable()
@@ -60,6 +61,14 @@ export class S3Service {
             console.log(e);
         }
     }
+
+
+    createPresignedUrlWithClient = (fileName : string) => {
+        const client = this.s3;
+        const ContentType =mime.lookup(fileName) || 'application/octet-stream';
+        const command = new PutObjectCommand({ Bucket: envConfig.S3_BUCKET_NAME, Key: fileName, ContentType: ContentType });
+        return getSignedUrl(client, command, { expiresIn: 3600 });
+    };
 }
 
 // const s3Instance = new S3Service();
