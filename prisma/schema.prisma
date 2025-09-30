@@ -315,6 +315,7 @@ model SKU {
 
 model Brand {
   id                Int                @id @default(autoincrement())
+  name              String             @db.VarChar(500)
   logo              String
   createdById       Int?
   updatedById       Int?

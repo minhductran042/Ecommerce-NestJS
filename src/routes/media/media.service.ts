@@ -31,7 +31,9 @@ export class MediaService {
         })
       }))
 
-      return result
+      return {
+        data: result
+      }
     }
 
 
