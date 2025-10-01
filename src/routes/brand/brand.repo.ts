@@ -1,12 +1,13 @@
 import { Injectable } from "@nestjs/common";
 import { PrismaService } from "src/shared/services/prisma.service";
 import { BrandIncludeTranslationType, BrandType, CreateBrandBodyType, GetBrandDetailType, GetBrandParamsType, GetBrandQueryType, GetBrandsResType, UpdateBrandBodyType } from "./brand.model";
+import { ALL_LANGUAGE_CODE } from "src/shared/constants/other.const";
 
 @Injectable()
 export class BrandRepository {
     constructor(private readonly prismaService: PrismaService) {}
 
-    async list(pagination: GetBrandQueryType, languageId?: string) : Promise<GetBrandsResType> {
+    async list(pagination: GetBrandQueryType, languageId: string) : Promise<GetBrandsResType> {
         const skip = (pagination.page - 1) * pagination.limit
         const take = pagination.limit
         const [totalItems, data] = await Promise.all([
@@ -21,12 +22,14 @@ export class BrandRepository {
                 },
                 include: {
                     brandTranslations: {
-                        where: languageId ? {
+                        where: languageId === ALL_LANGUAGE_CODE ? 
+                        {
+                            deletedAt: null
+                        } 
+                        : {
                             languageId,
                             deletedAt: null
-                        } : {
-                            deletedAt: null
-                        }
+                        } 
                     }
                 },
                 skip,
@@ -48,7 +51,7 @@ export class BrandRepository {
         }
     }
     
-    findById(brandId: number, languageId?: string) : Promise<BrandIncludeTranslationType | null> {
+    findById(brandId: number, languageId: string) : Promise<BrandIncludeTranslationType | null> {
         return this.prismaService.brand.findUnique({
             where: {
                 id: brandId,
@@ -56,12 +59,14 @@ export class BrandRepository {
             },
             include: {
                 brandTranslations: {
-                    where: languageId ? {
+                    where: languageId === ALL_LANGUAGE_CODE ? 
+                    {
+                        deletedAt: null
+                    } 
+                    : {
                         languageId,
                         deletedAt: null
-                    } : {
-                        deletedAt: null
-                    }
+                    } 
                 }
             }
         })

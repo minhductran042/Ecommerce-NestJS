@@ -3,18 +3,21 @@ import { BrandRepository } from './brand.repo';
 import { CreateBrandBodyType, GetBrandQueryType, UpdateBrandBodyType } from './brand.model';
 import { NotFoundRecordException } from 'src/shared/error';
 import { isNotFoundPrismaError } from 'src/shared/helper';
+import { I18nContext } from 'nestjs-i18n';
 
 @Injectable()
 export class BrandService {
-    constructor(private readonly brandRepository: BrandRepository) {}
+    constructor(
+        private readonly brandRepository: BrandRepository
+    ) {}
 
     list(pagination: GetBrandQueryType) {
-        return this.brandRepository.list(pagination)
+        return this.brandRepository.list(pagination, I18nContext.current()?.lang as string)
     }
 
     async findById(brandId: number) {
         try {
-            return await this.brandRepository.findById(brandId)
+            return await this.brandRepository.findById(brandId, I18nContext.current()?.lang as string)
         } catch (error) {
             if(isNotFoundPrismaError(error)) {
                 throw NotFoundRecordException
@@ -51,7 +54,7 @@ export class BrandService {
     }) {
         try {
 
-            const brand = await this.brandRepository.findById(brandId)
+            const brand = await this.brandRepository.findById(brandId, I18nContext.current()?.lang as string)
             if(!brand) {
                 throw NotFoundRecordException
             }
@@ -71,7 +74,7 @@ export class BrandService {
 
     async delete(brandId: number) {
         try {
-            const brand = await this.brandRepository.findById(brandId)
+            const brand = await this.brandRepository.findById(brandId, I18nContext.current()?.lang as string)
             if(!brand) {
                 throw NotFoundRecordException
             }
