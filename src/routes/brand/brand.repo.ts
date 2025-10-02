@@ -78,11 +78,18 @@ export class BrandRepository {
     }: {
         data: CreateBrandBodyType,
         createdById: number
-    }) : Promise<BrandType> {
+    }) : Promise<BrandIncludeTranslationType> {
         return this.prismaService.brand.create({
             data: {
                 ...data,
                 createdById
+            },
+            include: {
+                brandTranslations: {
+                    where: {
+                        deletedAt: null
+                    }
+                }
             }
         })
     }
@@ -95,7 +102,7 @@ export class BrandRepository {
         brandId: number,
         data: UpdateBrandBodyType,
         updatedById: number
-    }) : Promise<BrandType> {
+    }) : Promise<BrandIncludeTranslationType> {
         return this.prismaService.brand.update({
             where: {
                 id: brandId,
@@ -103,6 +110,13 @@ export class BrandRepository {
             data: {
                 ...data,
                 updatedById
+            },
+            include: {
+                brandTranslations: {
+                    where: {
+                        deletedAt: null
+                    }
+                }
             }
         })
     }
