@@ -19,6 +19,8 @@ import { AcceptLanguageResolver, HeaderResolver, I18nModule, QueryResolver } fro
 import path from 'path';
 import { CategoryModule } from './routes/category/category.module';
 import { CategoryTranslationModule } from './routes/category/category-translation/category-translation.module';
+import { ProductTranslationModule } from './routes/product/product-translation/product-translation.module';
+import { ProductModule } from './routes/product/product.module';
 
 
 @Module({
@@ -46,8 +48,9 @@ import { CategoryTranslationModule } from './routes/category/category-translatio
     BrandModule,
     BrandTranslationModule,
     CategoryModule,
-    CategoryTranslationModule
-    
+    CategoryTranslationModule,
+    ProductTranslationModule,
+    ProductModule
   ],
   controllers: [AppController],
   providers: [AppService , 

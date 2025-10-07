@@ -1,26 +1,16 @@
 import z from "zod";
-import { CategoryTranslationSchema } from "./category-translation/category-translation.model";
+import { CategorySchema } from "src/shared/models/shared-category.model";
+import { CategoryTranslationSchema } from "src/shared/models/shared-category-translation.model";
 
-export const CategorySchema = z.object({
-    id: z.number(),
-    parentCategoryId: z.number().nullable(),
-    name: z.string().max(500),
-    logo: z.string().max(500).nullable(),
-    createdById: z.number().nullable(),
-    updatedById: z.number().nullable(),
-    updatedAt: z.date(),
-    createdAt: z.date(),
-    deletedAt: z.date().nullable()
-})
 
 export const GetCategoryDetailSchema = CategorySchema
 
-export const CategoryIncludeCategoriesTranslationSchema = CategorySchema.extend({
+export const CategoryIncludeTranslationSchema = CategorySchema.extend({
     categoryTranslations: z.array(CategoryTranslationSchema) 
 })
 
 export const GetAllCategoriesResBodySchema = z.object({
-    data: z.array(CategoryIncludeCategoriesTranslationSchema),
+    data: z.array(CategoryIncludeTranslationSchema),
     totalItems: z.number()
 })
 
@@ -47,4 +37,4 @@ export type GetCategoryQueryType = z.infer<typeof GetAllCategoriesQuerySchema>
 export type GetCategoryParamsType = z.infer<typeof GetCategoryParamsSchema>
 export type CreateCategoryBodyType = z.infer<typeof CreateCategoryBodySchema>
 export type UpdateCategoryBodyType = z.infer<typeof UpdateCategoryBodySchema>
-export type CategoryIncludeCategoriesTranslationType = z.infer<typeof CategoryIncludeCategoriesTranslationSchema>
+export type CategoryIncludeCategoriesTranslationType = z.infer<typeof CategoryIncludeTranslationSchema>

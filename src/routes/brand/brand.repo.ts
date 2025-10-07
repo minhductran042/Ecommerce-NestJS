@@ -1,7 +1,8 @@
 import { Injectable } from "@nestjs/common";
 import { PrismaService } from "src/shared/services/prisma.service";
-import { BrandIncludeTranslationType, BrandType, CreateBrandBodyType, GetBrandDetailType, GetBrandParamsType, GetBrandQueryType, GetBrandsResType, UpdateBrandBodyType } from "./brand.model";
+import { BrandIncludeTranslationType, CreateBrandBodyType, GetBrandDetailType, GetBrandParamsType, GetBrandQueryType, GetBrandsResType, UpdateBrandBodyType } from "./brand.model";
 import { ALL_LANGUAGE_CODE } from "src/shared/constants/other.const";
+import { BrandType } from "src/shared/models/shared-brand.model";
 
 @Injectable()
 export class BrandRepository {

@@ -1,5 +1,6 @@
 import { createZodDto } from "nestjs-zod";
-import { CategorySchema, CreateCategoryBodySchema, GetAllCategoriesQuerySchema, GetAllCategoriesResBodySchema, GetCategoryDetailSchema, GetCategoryParamsSchema, UpdateCategoryBodySchema } from "./category.model";
+import {  CreateCategoryBodySchema, GetAllCategoriesQuerySchema, GetAllCategoriesResBodySchema, GetCategoryDetailSchema, GetCategoryParamsSchema, UpdateCategoryBodySchema } from "./category.model";
+import { CategorySchema } from "src/shared/models/shared-category.model";
 
 export class CategoryResDTO extends createZodDto(CategorySchema) {}
 export class CreateCategoryBodyDTO extends createZodDto(CreateCategoryBodySchema) {}
