@@ -45,7 +45,7 @@ export const GetProductParamsSchema = z.object({
 
 export const GetProductsResSchema = z.object({
     data: z.array(ProductSchema.extend({
-        productTranslation: z.array(ProductTranslationSchema),
+        productTranslations: z.array(ProductTranslationSchema),
     })),
     totalItems: z.number(),
     totalPages: z.number(),
