@@ -132,7 +132,7 @@ export class ProductRepository {
             data: {
                 ...productData,
                 categories: {
-                    connect: categories.map((category) => ({ id: category }))
+                    connect: categories.map((category) => ({ id: category })) // 
                 },
                 skus: {
                     createMany: {
@@ -141,21 +141,40 @@ export class ProductRepository {
                 }
             },
             include: {
-                productTranslations: true,
-                skus: true,
+                productTranslations: {
+                    where: {
+                        deletedAt: null
+                    }
+                },
+                skus: {
+                    where: {
+                        deletedAt: null
+                    }
+                },
                 brand: {
                     include: {
-                        brandTranslations: true
+                        brandTranslations: {
+                            where: {
+                                deletedAt: null
+                            }
+                        }
                     }
                 },
                 categories: {
+                    where: {
+                        deletedAt: null
+                    },
                     include: {
-                        categoryTranslations: true
+                        categoryTranslations: {
+                            where: {
+                                deletedAt: null
+                            }
+                        }
                     }
                 }
             }
         })
+
         return createdProduct
     }
-
 }
