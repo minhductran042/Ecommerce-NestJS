@@ -54,8 +54,8 @@ export const GetProductsResSchema = z.object({
 })
 
 export const GetProductDetailResSchema = ProductSchema.extend({
-    productTranslation: z.array(ProductTranslationSchema),
-    skus: z.array(z.object(SKUSchema)),
+    productTranslations: z.array(ProductTranslationSchema),
+    skus: z.array(SKUSchema),
     categories: z.array(CategoryIncludeTranslationSchema),
     brand: BrandIncludeTranslationSchema
 })

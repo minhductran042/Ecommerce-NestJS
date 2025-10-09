@@ -8,12 +8,11 @@ export const SKUSchema = z.object({
   image: z.string(),
   productId: z.number(),
 
-  createdById: z.number(),
+  createdById: z.number().nullable(),
   updatedById: z.number().nullable(),
-  deletedById: z.number().nullable(),
-  deletedAt: z.iso.datetime().nullable(),
-  createdAt: z.iso.datetime(),
-  updatedAt: z.iso.datetime(),
+  deletedAt: z.date().nullable(),
+  createdAt: z.date(),
+  updatedAt: z.date(),
 })
 
 export type SKUType = z.infer<typeof SKUSchema>
