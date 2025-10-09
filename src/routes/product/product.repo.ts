@@ -1,7 +1,8 @@
 import { Injectable } from "@nestjs/common";
 import { PrismaService } from "src/shared/services/prisma.service";
-import { GetProductDetailResType, GetProductQueryType, GetProductsResType } from "./product.model";
+import {  CreateProductBodyType, GetProductDetailResType, GetProductQueryType, GetProductsResType } from "./product.model";
 import { ALL_LANGUAGE_CODE } from "src/shared/constants/other.const";
+import is from "zod/v4/locales/is.js";
 
 @Injectable()
 export class ProductRepository {
@@ -79,4 +80,82 @@ export class ProductRepository {
         })
     }
     
+    async delete({
+        id,
+        deletedById,
+    } : {
+        id: number,
+        deletedById: number | null,
+    }, 
+    isHard?: boolean
+    ) {
+        if(isHard) {
+            const [product] = await Promise.all([
+                this.prismaService.product.delete({
+                    where: {id}
+                }),
+                this.prismaService.sKU.deleteMany({
+                    where: {productId: id}
+                })
+            ])
+            return product
+        } else {
+            const [product] = await Promise.all([
+                this.prismaService.product.update({
+                    where: {id},
+                    data: {
+                        deletedAt: new Date(),
+                        deletedById
+                    }
+                }),
+                this.prismaService.sKU.updateMany({
+                    where: {productId: id},
+                    data: {
+                        deletedAt: new Date()
+                    }
+                })
+            ])
+            return product
+        }
+    }
+
+
+    async create({
+        data,
+        createdById
+    }: {
+        data: CreateProductBodyType,
+        createdById: number | null,
+    }) : Promise<GetProductDetailResType> {
+        const {skus, categories, ...productData} = data;
+        const createdProduct = await this.prismaService.product.create({
+            data: {
+                ...productData,
+                categories: {
+                    connect: categories.map((category) => ({ id: category }))
+                },
+                skus: {
+                    createMany: {
+                        data: skus
+                    }
+                }
+            },
+            include: {
+                productTranslations: true,
+                skus: true,
+                brand: {
+                    include: {
+                        brandTranslations: true
+                    }
+                },
+                categories: {
+                    include: {
+                        categoryTranslations: true
+                    }
+                }
+            }
+        })
+        return createdProduct
+    }
+
 }
